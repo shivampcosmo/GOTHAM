@@ -1,58 +1,17 @@
 import sys, os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-# os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
-# import pickle as pk
 import numpy as np
 import torch
-# dev = torch.device("cuda")
 import torch.optim as optim
-# from torch.distributions import MultivariateNormal
-# from torch.distributions import Normal
-# root_dir = '/mnt/home/spandey/ceph/AR_NPE/'
-# os.chdir(root_dir)
-# import colossus
-import sys, os
-# append the root_dir to the path
-# sys.path.append(root_dir)
-# from nf.combined_models_wmaskSumGauss import COMBINED_Model
-# from nf.combined_models_classification import COMBINED_Model
-# from nf.all_models import *
-# from nf.utils_data_prep_cosmo import *
-# from tqdm import tqdm
-# import pyyaml
-# from colossus.cosmology import cosmology
-# params = {'flat': True, 'H0': 67.11, 'Om0': 0.3175, 'Ob0': 0.049, 'sigma8': 0.834, 'ns': 0.9624}
-# cosmo = cosmology.setCosmology('myCosmo', **params)
-# get halo mass function:
-# from colossus.lss import mass_function
-from tqdm import tqdm
-    
-# import yaml
 import pickle as pk
 import matplotlib
 import matplotlib.pyplot as pl
 import numpy as np
-import sys,os
-# import readgadget
-# import MAS_library as MASL
 import pickle as pk
-# import readfof
 import matplotlib
-
-# import matplotlib.pyplot as pl
-# pl.rc('text', usetex=True)
-# Palatino
-# pl.rc('font', family='DejaVu Sans')
-
-
-import torch
+from xformers.components.attention import ScaledDotProduct
 import torch.nn as nn
 from torch.nn import functional as F
 from dataclasses import dataclass
-
-
-import torch
-import torch.nn as nn
 import numpy as np
 import math
 
@@ -101,10 +60,8 @@ class CNN3D_stackout(nn.Module):
             ksize,
             nside_in,
             nside_out,
-            # nbatch,
             ninp,
             nfeature,
-            # nout,
             layers_types=['res', 'res', 'res', 'res'],
             # layers_types=['res', 'res'],            
             act='tanh',
@@ -217,7 +174,7 @@ class LayerNorm(nn.Module):
     
 class Attention(nn.Module):
 
-    def __init__(self, n_head, n_embd_kv, n_embd_q, dropout, Td, flash=False, attn_bias=False):
+    def __init__(self, n_head, n_embd_kv, n_embd_q, dropout, Td, flash=True, attn_bias=False):
         super().__init__()
         # assert config.n_embd % config.n_head == 0
         # key, query, value projections for all heads, but in a batch
@@ -241,6 +198,15 @@ class Attention(nn.Module):
             # causal mask to ensure that attention is only applied to the left in the input sequence
             self.register_buffer("bias", torch.tril(torch.ones(Td, Td))
                                         .view(1, 1, Td, Td))
+        else:
+            attn_causal_mask = torch.tril(torch.ones(Td, Td)).view(1, 1, Td, Td)
+            attn_causal_mask = attn_causal_mask.masked_fill(attn_causal_mask == 0, float('-inf'))
+            attn_causal_mask = attn_causal_mask.masked_fill(attn_causal_mask == 1., 0.0)
+            # self.register_buffer("bias", torch.tril(torch.ones(Td, Td))
+                                        # .view(1, 1, Td, Td))
+            self.register_buffer("attn_causal_mask", attn_causal_mask)            
+
+            # self.scaled_dot_product_ = ScaledDotProduct(dropout=dropout, causal=True)
 
     def forward(self, xd, xe=None, maskd=None, maske=None):
         B, Td, C = xd.size() # batch size, sequence length, embedding dimensionality (n_embd)
@@ -270,7 +236,12 @@ class Attention(nn.Module):
             if maskd is not None:
                 maskd = maskd.view(B, 1, 1, Td).expand(B, self.n_head, Td, Td) # specifies new size
             if self.flash:
-                y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=maskd, dropout_p=self.dropout if self.training else 0, is_causal=True)
+                mask_causal = self.attn_causal_mask[:,:,:Td,:Td].expand(B, self.n_head, Td, Td)
+                if maskd is None:
+                    attn_mask = mask_causal  
+                else:
+                    attn_mask = mask_causal + maskd
+                y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=attn_mask, dropout_p=self.dropout if self.training else 0, is_causal=False)
             else:
                 # manual implementation of attention
                 att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
@@ -282,21 +253,6 @@ class Attention(nn.Module):
                 y = att @ v # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)                
 
 
-        # k = k.view(B, Te, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
-        # q = q.view(B, Td, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
-        # v = v.view(B, Te, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
-
-        # causal self-attention; Self-attend: (B, nh, T, hs) x (B, nh, hs, T) -> (B, nh, T, T)
-        # if self.flash:
-        # efficient attention using Flash Attention CUDA kernels
-        
-        # else:
-        #     # manual implementation of attention
-        #     att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
-        #     att = att.masked_fill(self.bias[:,:,:T,:T] == 0, float('-inf'))
-        #     att = F.softmax(att, dim=-1)
-        #     att = self.attn_dropout(att)
-        #     y = att @ v # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
         y = y.transpose(1, 2).contiguous().view(B, Td, C) # re-assemble all head outputs side by side
 
         # output projection
@@ -325,10 +281,15 @@ class Block(nn.Module):
 
     def __init__(self, config):
         super().__init__()
+        if hasattr(config, 'flash'):
+            flash = config.flash
+        else:
+            flash = False
+        print('Using flash: ', flash)
         self.ln_1 = LayerNorm(config.n_embd, bias=config.bias)
-        self.selfattn = Attention(config.n_head, config.n_embd, config.n_embd, config.dropout, config.block_size, attn_bias=False)
+        self.selfattn = Attention(config.n_head, config.n_embd, config.n_embd, config.dropout, config.block_size, flash=flash, attn_bias=False)
         self.ln_2 = LayerNorm(config.n_embd, bias=config.bias)        
-        self.crossattn = Attention(config.n_head, config.n_embd, config.n_embd, config.dropout, config.block_size, attn_bias=False)        
+        self.crossattn = Attention(config.n_head, config.n_embd, config.n_embd, config.dropout, config.block_size, flash=flash, attn_bias=False)        
         self.ln_3 = LayerNorm(config.n_embd, bias=config.bias)
         self.mlp = MLP(config.n_embd, config.dropout)
 

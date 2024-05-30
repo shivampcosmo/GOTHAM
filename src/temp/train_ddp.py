@@ -125,13 +125,18 @@ eval_interval = 10
 learning_rate = 1e-3
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = 200
-n_embd = 48
+n_embd = 64
 n_head = 4
 n_layer = 4
 dropout = 0.2
 # ------------
-vocab_size = 131
-block_size = 161
+# vocab_size = 131
+# block_size = 161
+
+vocab_size = 67
+block_size = 211
+
+
 batch_size = 1024
 
 # n_embd_dm = 64
@@ -222,7 +227,7 @@ def run_fn():
     ctx = nullcontext() if device_type == 'cpu' else torch.amp.autocast(device_type=device_type, dtype=ptdtype)
 
     if rank == 0: print(f"Loading data", flush=True)    
-    f = h5.File('/mnt/home/spandey/ceph/CHARFORMER/data/df_halo_part_ngp_xyzM_tokenized_density3Dgrid_32_isim_012_snap_3.h5', 'r')
+    f = h5.File('/mnt/home/spandey/ceph/CHARFORMER/data/PM/df_halo_part_ngp_xyzM_tokenized_PM_density3Dgrid_32_isim_012_snap_3.h5', 'r')
     dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed_all = f['dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed_all'][:]
     delta_box_all_squeezed_all = f['delta_box_all_squeezed_all'][:]
     f.close()
@@ -327,7 +332,7 @@ def run_fn():
 
     scaler = torch.cuda.amp.GradScaler(enabled=(dtype == 'float16'))
 
-    model.load_state_dict(torch.load('/mnt/home/spandey/ceph/CHARFORMER/model_checkpoints/model_encdec.pt'))
+    # model.load_state_dict(torch.load('/mnt/home/spandey/ceph/CHARFORMER/model_checkpoints/model_encdec_PM.pt'))
 
     # Training loop
     val_loss_min = 1e20
@@ -353,7 +358,7 @@ def run_fn():
                     }
                     if rank == 0:
                         # torch.save(model.state_dict(), '/mnt/home/spandey/ceph/CHARFORMER/model_checkpoints/model_encdec.pt')
-                        torch.save(checkpoint, '/mnt/home/spandey/ceph/CHARFORMER/model_checkpoints/model_encdec_testddp.pt')            
+                        torch.save(checkpoint, '/mnt/home/spandey/ceph/CHARFORMER/model_checkpoints/model_encdec_ddp_PM_isim_012_nvocab_64_nembed_64.pt')            
                         print(f"New best model saved with loss {val_loss_min:.4f}")
                     dist.barrier()
 
