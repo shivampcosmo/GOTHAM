@@ -28,7 +28,7 @@ source ~/miniconda3/bin/activate ili-sbi
 
 master_node=$SLURMD_NODENAME
 
-cd /mnt/home/spandey/ceph/CHARFORMER/src/
+cd /mnt/home/spandey/ceph/GOTHAM/src/
 srun python `which torchrun` \
         --nnodes $SLURM_JOB_NUM_NODES \
         --nproc_per_node $SLURM_GPUS_PER_NODE \

@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-gpu=8
-#SBATCH --time=24:00:00
-#SBATCH --job-name=FINAL_RUN_MULTGPU_DDP_PM_NOFLASH
+#SBATCH --cpus-per-gpu=12
+#SBATCH --time=12:00:00
+#SBATCH --job-name=lowLR_wvel_orig_NV64_512p3_Mmin_13p5
 #SBATCH -p gpu
-#SBATCH -C h100
-#SBATCH --mem=512G
+#SBATCH -C a100-80gb&ib-a100
+#SBATCH --mem=1000G
 #SBATCH --gpus-per-node=4
 #SBATCH --output=/mnt/home/spandey/ceph/CHARFORMER/src/slurm_logs/PM/%x.%j.out
 #SBATCH --error=/mnt/home/spandey/ceph/CHARFORMER/src/slurm_logs/PM/%x.%j.err
@@ -28,12 +28,12 @@ source ~/miniconda3/bin/activate ili-sbi
 
 master_node=$SLURMD_NODENAME
 
-cd /mnt/home/spandey/ceph/CHARFORMER/src/
+cd /mnt/home/spandey/ceph/GOTHAM/src/
 srun python `which torchrun` \
         --nnodes $SLURM_JOB_NUM_NODES \
         --nproc_per_node $SLURM_GPUS_PER_NODE \
         --rdzv_id $SLURM_JOB_ID \
         --rdzv_backend c10d \
         --rdzv_endpoint $master_node:29500 \
-        test_ddp_PM.py
+        test_ddp_PM_Mmin_13p5_nv64_wvel.py
 echo "done"

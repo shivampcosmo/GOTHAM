@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-gpu=8
 #SBATCH --time=24:00:00
-#SBATCH --job-name=Mmin_13p0_MULTGPU_DDP_PM
+#SBATCH --job-name=Mmin_13p0_Nemb_96_MULTGPU_DDP_PM
 #SBATCH -p gpu
 #SBATCH -C h100
 #SBATCH --mem=512G
@@ -28,12 +28,12 @@ source ~/miniconda3/bin/activate ili-sbi
 
 master_node=$SLURMD_NODENAME
 
-cd /mnt/home/spandey/ceph/CHARFORMER/src/
+cd /mnt/home/spandey/ceph/GOTHAM/src/
 srun python `which torchrun` \
         --nnodes $SLURM_JOB_NUM_NODES \
         --nproc_per_node $SLURM_GPUS_PER_NODE \
         --rdzv_id $SLURM_JOB_ID \
         --rdzv_backend c10d \
         --rdzv_endpoint $master_node:29500 \
-        test_ddp_PM_Mmin_13p0_nv64.py
+        test_ddp_PM_Mmin_13p0_nv64_nemb_96.py
 echo "done"
