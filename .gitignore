@@ -1,3 +1,6 @@
+data/*
+model_checkpoints/*
+results/*
 # Byte-compiled / optimized / DLL files
 slurm_logs/
 __pycache__/
