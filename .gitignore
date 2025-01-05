@@ -7,6 +7,19 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+*.pkl
+*.dill
+*.hdf5
+*.h5
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.pt
+*.err
+*.out
+logs/
+
 # C extensions
 *.so
 
