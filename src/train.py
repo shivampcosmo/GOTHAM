@@ -59,7 +59,7 @@ class CustomDataset(Dataset):
         # Optionally shuffle your data for each epoch
         pass
 
-def get_data_split(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed, delta_box_all_squeezed, n1_fac=0.8, n2_fac=1.0):
+def get_data_split(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed, delta_box_all_squeezed, params_all, n1_fac=0.8, n2_fac=1.0):
     n1 = int(n1_fac*len(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed)) 
     n2 = int(n2_fac*len(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed)) 
     train_data_halos = dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed[:n1]
@@ -67,6 +67,9 @@ def get_data_split(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed, delta_box_al
 
     train_data_dm = delta_box_all_squeezed[:n1]
     val_data_dm = delta_box_all_squeezed[n1:n2]
+
+    params_all_train = params_all[:n1]
+    params_all_val = params_all[n1:n2]
 
     x = torch.tensor(train_data_halos[:, :-1])
     y = torch.tensor(train_data_halos[:, 1:])
@@ -80,6 +83,7 @@ def get_data_split(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed, delta_box_al
     x_train = x.long()
     y_train = y.long()
     dm_train = dm.bfloat16()
+    params_all_train = torch.tensor(params_all_train).bfloat16()
     mask_train = torch.tensor(mask_train).bfloat16()
 
     x = torch.tensor(val_data_halos[:, :-1])
@@ -94,21 +98,37 @@ def get_data_split(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed, delta_box_al
     x_val = x.long()
     y_val = y.long()
     dm_val = dm.bfloat16()
+    params_all_val = torch.tensor(params_all_val).bfloat16()
     mask_val = torch.tensor(mask_val).bfloat16()
 
-    return x_train, y_train, dm_train, mask_train, x_val, y_val, dm_val, mask_val
+    return x_train, y_train, dm_train, params_all_train, mask_train, x_val, y_val, dm_val, params_all_val, mask_val
 
 
-f = h5.File('/mnt/home/spandey/ceph/GOTHAM/data/PM/df_halo_part_ngp_xyzM_tokenized_PM_384x384x384_density3Dgrid_32_isim_012_snap_3_nvocab64_Mmin_13p5.h5', 'r')
-dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed_all = f['dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed_all'][:]
-delta_box_all_squeezed_all = f['delta_box_all_squeezed_all'][:]
-nvocab_total = f['nvocab_total'][()]
-grid_size = f['grid'][()]
-start_token = f['start_token'][()]
-pad_token = f['pad_token'][()]
-end_token = f['end_token'][()]
-max_sentence_length = f['max_sentence_length'][()]
-f.close()
+norm_delta = 100,
+norm_vel = 1000,
+BoxSize = 25.
+grid = 8
+grid_sbox = 32
+npart_test = 128**3
+nMax_h = 20
+nvocab = 64
+nrand_sel_box = 16
+Mstar_cut = 8
+subsamp_ds = 2
+sdir = '/work/hdd/bdne/spandey3/camels_tng/gotham_data/LH'
+savefname = f'{sdir}/ALL_data_nspersim_subhalo_density3Dgrid_{grid_sbox}_isim_all_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_nvocab{nvocab}_lgMmin_{Mstar_cut}.h5'
+with h5.File(savefname, 'r') as f:
+    params_repeated_all = f['params_repeated_all'][()]
+    delta_box_all_squeezed_all = f['delta_box_all_squeezed_all'][()]
+    delta_box_all_squeezed_all = np.moveaxis(delta_box_all_squeezed_all, -1, 1)
+    dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed_all = f['dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed_all'][()]
+    nvocab_total = f['nvocab_total'][()]
+    grid_size = f['grid'][()]
+    start_token = f['start_token'][()]
+    pad_token = f['pad_token'][()]
+    end_token = f['end_token'][()]
+    max_sentence_length = f['max_sentence_length'][()]    
+    f.close()
 
 
 
@@ -122,7 +142,7 @@ n_embd = 64
 n_head = 4
 n_layer = 4
 dropout = 0.2
-
+nparams = 6 # number of parameters in camels to append to the CNN features output
 vocab_size = nvocab_total
 block_size = max_sentence_length - 1
 
@@ -136,13 +156,14 @@ class HaloConfig:
     n_layer: int = n_layer
     n_head: int = n_head
     n_embd: int = n_embd
+    nparams: int = nparams
     dropout: float = dropout
     bias: bool = True 
 
     ksize : int = 3
     density_grid_in : int = grid_size
     density_grid_out : int = 4
-    ninp_density : int = 3
+    ninp_density : int = 30
 
     pad_token : int = pad_token
     flash : bool = False
@@ -168,7 +189,7 @@ def train():
 
     dtype = 'bfloat16'
 
-    x_train, y_train, dm_train, mask_train, x_val, y_val, dm_val, mask_val = get_data_split(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed_all, delta_box_all_squeezed_all, 0.8, 1.0)
+    x_train, y_train, dm_train, params_train, mask_train, x_val, y_val, dm_val, params_val, mask_val = get_data_split(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed_all, delta_box_all_squeezed_all, params_repeated_all, 0.8, 1.0)
     if rank == 0: print(f"Got split with sizes {x_train.shape} and {x_val.shape}", flush=True)        
 
     labels = torch.randn(20, 5).to(device_id)
@@ -179,6 +200,7 @@ def train():
 
     x_train_gpu = (x_train[start:end,...]).to(device_id)
     dm_train_gpu = (dm_train[start:end,...]).to(device_id)
+    params_train_gpu = (params_train[start:end,...]).to(device_id)
     mask_train_gpu = (mask_train[start:end,...]).to(device_id)
     y_train_gpu = (y_train[start:end,...]).to(device_id)
     print(f"I am rank {rank} and will process train data from {start} to {end}.")
@@ -188,6 +210,7 @@ def train():
     end = start + (len(x_val) // torch.cuda.device_count())
     x_val_gpu = (x_val[start:end,...]).to(device_id, non_blocking=True)
     dm_val_gpu = (dm_val[start:end,...]).to(device_id, non_blocking=True)
+    params_val_gpu = (params_val[start:end,...]).to(device_id, non_blocking=True)
     mask_val_gpu = (mask_val[start:end,...]).to(device_id, non_blocking=True)
     y_val_gpu = (y_val[start:end,...]).to(device_id, non_blocking=True)
     print(f"I am rank {rank} and will process val data from {start} to {end}.")    
@@ -207,20 +230,23 @@ def train():
             y = y_train_gpu
             mask = mask_train_gpu
             dm = dm_train_gpu
+            params = params_train_gpu
 
         elif split == 'val':
             x = x_val_gpu
             y = y_val_gpu
             mask = mask_val_gpu
             dm = dm_val_gpu
+            params = params_val_gpu
 
         if batch_size is not None:
             x = x[batch_size*(ji):batch_size*(ji+1)].to(device_id, non_blocking=True)
             y = y[batch_size*(ji):batch_size*(ji+1)].to(device_id, non_blocking=True)
             mask = mask[batch_size*(ji):batch_size*(ji+1)].to(device_id, non_blocking=True)
             dm = dm[batch_size*(ji):batch_size*(ji+1)].to(device_id, non_blocking=True)
+            params = params[batch_size*(ji):batch_size*(ji+1)].to(device_id, non_blocking=True)
 
-        return x, y, mask, dm
+        return x, y, mask, dm, params
     
     # helps estimate an arbitrarily accurate loss over either split using many batches
     @torch.no_grad()
@@ -230,9 +256,9 @@ def train():
         for split in ['train', 'val']:
             losses = torch.zeros(eval_iters)
             for k in range(eval_iters):
-                X, Y, MASK, DM = get_batch(split, batch_size = batch_size)
+                X, Y, MASK, DM, PARAMS = get_batch(split, batch_size = batch_size)
                 with ctx:
-                    logits, loss = model(X, DM, maskd=MASK, targets=Y)
+                    logits, loss = model(X, DM, params=PARAMS, maskd=MASK, targets=Y)
                 losses[k] = loss.item()
             out[split] = losses.mean()
         return out    
@@ -274,7 +300,7 @@ def train():
     nbatches = 10
     max_iters = 6000
     eval_interval = 20
-    save_separate_interval = 400
+    save_separate_interval = 200
     while True:
         lr = get_lr(iter_num, model=decay_lr_model) if decay_lr else learning_rate
         for param_group in optimizer.param_groups:
@@ -295,17 +321,17 @@ def train():
                             'lr': lr
                         }
                         print(f"saving checkpoint")
-                        torch.save(checkpoint, '/mnt/home/spandey/ceph/GOTHAM/model_checkpoints/model_encdec_ddp_PM_isim_012_nvocab_64_nembed_64_Mmin_13p5.pt')                                 
+                        torch.save(checkpoint, f'/projects/bdne/spandey3/GOTHAM/model_checkpoints/camels/model_encdec_ddp_PM_nvocab_64_nembed_64_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}.pt')                                 
 
                         if iter_num % save_separate_interval == 0 and (rank == 0):
-                            torch.save(checkpoint, f'/mnt/home/spandey/ceph/GOTHAM/model_checkpoints/model_encdec_ddp_PM_isim_012_nvocab_64_nembed_64_Mmin_13p5_{iter_num}.pt')
+                            torch.save(checkpoint, f'/projects/bdne/spandey3/GOTHAM/model_checkpoints/camels/model_encdec_ddp_PM_nvocab_64_nembed_64_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_iter_{iter_num}.pt')
 
         for ji in (range(nbatches)):
             model.require_backward_grad_sync = (ji == nbatches - 1)
 
-            X, Y, MASK, DM = get_batch('train', ji, batch_size)
+            X, Y, MASK, DM, PARAMS = get_batch('train', ji, batch_size)
             with ctx:
-                _, loss = model(X, DM, maskd=MASK, targets=Y)
+                _, loss = model(X, DM, params=PARAMS, maskd=MASK, targets=Y)
                 # loss = loss
             # backward pass, with gradient scaling if training in fp16
             scaler.scale(loss).backward()   
@@ -314,8 +340,8 @@ def train():
         scaler.update()
         # flush the gradients as soon as we can, no need for this memory anymore
         optimizer.zero_grad(set_to_none=True)
-        if (iter_num % 10) == 0 and (rank == 0):
-            print(f"iter {iter_num}, loss: {loss.item()}")                 
+        # if (iter_num % 10) == 0 and (rank == 0):
+        #     print(f"iter {iter_num}, loss: {loss.item()}")                 
 
         iter_num += 1
         local_iter_num += 1

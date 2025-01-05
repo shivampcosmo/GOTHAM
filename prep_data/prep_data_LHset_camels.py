@@ -206,7 +206,7 @@ def process_LH_sim(isim_fid):
     # Palatino
     pl.rc('font', family='DejaVu Sans')
     from ngp_funcs import NGP_mass, NGP_xyz, NGP_xyzM, NGP_xyz_vxvyvz    
-    nrand_sel_box = 16
+    nrand_sel_box = 64
     snapnum = 90
     # mass_type = 'rockstar_200c'
     # h5.File('/scratch/bdne/spandey3/camels_tng/caesar/CV/CV_12/caesar_newsnaps_090.hdf5','r') 

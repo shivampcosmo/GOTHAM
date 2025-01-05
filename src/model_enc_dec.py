@@ -8,7 +8,7 @@ import matplotlib.pyplot as pl
 import numpy as np
 import pickle as pk
 import matplotlib
-from xformers.components.attention import ScaledDotProduct
+# from xformers.components.attention import ScaledDotProduct
 import torch.nn as nn
 from torch.nn import functional as F
 from dataclasses import dataclass
@@ -311,7 +311,7 @@ class HaloDecoderModel(nn.Module):
                     config.density_grid_in,
                     config.density_grid_out,
                     config.ninp_density,
-                    config.n_embd)        
+                    config.n_embd - config.nparams)        
         # each token directly reads off the logits for the next token from a lookup table
         # self.token_embedding_table = nn.Linear(config.vocab_size, config.n_embd)
         # self.position_embedding_table = nn.Embedding(block_size, n_embd)
@@ -357,13 +357,15 @@ class HaloDecoderModel(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
-    def forward(self, idx, density_all, maskd=None, targets=None):
+    def forward(self, idx, density_all, params=None, maskd=None, targets=None):
         device = idx.device
         b, t = idx.size()
         assert t <= self.config.block_size, f"Cannot forward sequence of length {t}, block size is only {self.config.block_size}"
         pos = torch.arange(0, t, dtype=torch.long, device=device) # shape (t)
 
         xe = self.cnn3D(density_all)
+        params_to_concat = params[:, None, :].expand(-1, xe.shape[1], -1)
+        xe = torch.cat((xe, params_to_concat), dim=-1)
 
         tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
         pos_emb = self.transformer.wpe(pos) # position embeddings of shape (t, n_embd)
@@ -385,7 +387,7 @@ class HaloDecoderModel(nn.Module):
         return logits, loss
 
 
-    def generate(self, idx_inp, density_inp, max_new_tokens, temperature=1.0, nvox_samp=32):
+    def generate(self, idx_inp, density_inp, max_new_tokens, params_inp=None, temperature=1.0, nvox_samp=32):
         # idx is (B, T) array of indices in the current context
         idx_all = []
         for jv in range(nvox_samp):
@@ -394,7 +396,7 @@ class HaloDecoderModel(nn.Module):
                 # crop idx to the last block_size tokens
                 idx_cond = idx[:, -self.config.block_size:]
                 # get the predictions
-                logits, _ = self(idx_cond, density_inp[jv,...].unsqueeze(0))
+                logits, _ = self(idx_cond, density_inp[jv,...].unsqueeze(0), params=params_inp)
                 # focus only on the last time step
                 logits = logits[:, -1, :] / temperature # becomes (B, C)
                 # apply softmax to get probabilities
