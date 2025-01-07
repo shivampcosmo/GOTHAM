@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=10         # CPU cores per MPI process
 #SBATCH --exclusive  # dedicated node for this job
 #SBATCH --mem=208G
-#SBATCH --time=0-00:30            # time (DD-HH:MM)
+#SBATCH --time=0-05:30            # time (DD-HH:MM)
 #SBATCH --job-name=test_ddp
 #SBATCH --output=/projects/bdne/spandey3/GOTHAM/run_scripts/camels/logs/%x.%j.out
 #SBATCH --error=/projects/bdne/spandey3/GOTHAM/run_scripts/camels/logs/%x.%j.err

@@ -114,7 +114,7 @@ nMax_h = 20
 nvocab = 64
 nrand_sel_box = 16
 Mstar_cut = 8
-subsamp_ds = 2
+subsamp_ds = 4
 sdir = '/work/hdd/bdne/spandey3/camels_tng/gotham_data/LH'
 savefname = f'{sdir}/ALL_data_nspersim_subhalo_density3Dgrid_{grid_sbox}_isim_all_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_nvocab{nvocab}_lgMmin_{Mstar_cut}.h5'
 with h5.File(savefname, 'r') as f:
@@ -134,9 +134,9 @@ with h5.File(savefname, 'r') as f:
 
 
 from dataclasses import dataclass
-max_iters = 6000
+max_iters = 2000
 eval_interval = 10
-learning_rate = 2e-3
+learning_rate = 5e-4
 eval_iters = 200
 n_embd = 64
 n_head = 4
@@ -265,9 +265,9 @@ def train():
 
     decay_lr = True # whether to decay the learning rate
     decay_lr_model = 'cosine'
-    warmup_iters = 500 # how many steps to warm up for
-    lr_decay_iters = 7500 # should be ~= max_iters per Chinchilla
-    min_lr = 1e-4 # minimum learning rate, should be ~= learning_rate/10 per Chinchilla
+    warmup_iters = 400 # how many steps to warm up for
+    lr_decay_iters = 1500 # should be ~= max_iters per Chinchilla
+    min_lr = 1e-5 # minimum learning rate, should be ~= learning_rate/10 per Chinchilla
     # learning rate decay scheduler (cosine with warmup)
     def get_lr(it, model='cosine'):
         # 1) linear warmup for warmup_iters steps
@@ -300,7 +300,7 @@ def train():
     nbatches = 10
     max_iters = 6000
     eval_interval = 20
-    save_separate_interval = 200
+    save_separate_interval = 100
     while True:
         lr = get_lr(iter_num, model=decay_lr_model) if decay_lr else learning_rate
         for param_group in optimizer.param_groups:
