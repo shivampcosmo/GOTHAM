@@ -26,7 +26,6 @@ from dataclasses import dataclass
 from torch.nn.parallel import DistributedDataParallel as DDP
 from multiprocessing import Pool
 
-
 def setup(rank, world_size):
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
 
@@ -34,6 +33,7 @@ def cleanup():
     dist.destroy_process_group()
 
 def train():
+
     device = 'cuda'
     compile = True 
     torch.backends.cuda.matmul.allow_tf32 = True 
@@ -46,7 +46,59 @@ def train():
     dist.init_process_group("nccl")
     rank = dist.get_rank()
     print(f"Start running basic DDP example on rank {rank}.")
-    Ndevices = torch.cuda.device_count()
+
+
+    def get_data_split(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed, delta_box_all_squeezed, params_all, n1_fac=0.8, n2_fac=1.0):
+        n1 = int(n1_fac*len(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed)) 
+        n2 = int(n2_fac*len(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed)) 
+        train_data_halos = dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed[:n1]
+        val_data_halos = dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed[n1:n2]
+
+        train_data_dm = delta_box_all_squeezed[:n1]
+        val_data_dm = delta_box_all_squeezed[n1:n2]
+
+        params_all_train = params_all[:n1]
+        params_all_val = params_all[n1:n2]
+
+        x = torch.tensor(train_data_halos[:, :-1])
+        y = torch.tensor(train_data_halos[:, 1:])
+        dm = torch.tensor(train_data_dm)
+        mask_train_orig = x != 1
+        mask_train = torch.logical_not(mask_train_orig)
+        masked_logits = torch.zeros(mask_train.shape)
+        mask_train_final = masked_logits.masked_fill(mask_train, float('-inf'))
+        mask_train = mask_train_final[:,None,:]
+        x, y = torch.tensor(x), torch.tensor(y)
+        # x_train = x.long()
+        # y_train = y.long()
+
+        x_train = x.to(torch.uint16)
+        y_train = y.to(torch.uint16)
+
+        dm_train = dm.bfloat16()
+        params_all_train = torch.tensor(params_all_train).bfloat16()
+        mask_train = torch.tensor(mask_train).bfloat16()
+
+        x = torch.tensor(val_data_halos[:, :-1])
+        y = torch.tensor(val_data_halos[:, 1:])
+        dm = torch.tensor(val_data_dm)
+        mask_val_orig = x != 1
+        mask_val = torch.logical_not(mask_val_orig)
+        masked_logits = torch.zeros(mask_val.shape)
+        mask_val_final = masked_logits.masked_fill(mask_val, float('-inf'))
+        mask_val = mask_val_final[:,None,:]
+        x, y = torch.tensor(x), torch.tensor(y)
+        # x_val = x.long()
+        # y_val = y.long()
+
+        x_val = x.to(torch.uint16)
+        y_val = y.to(torch.uint16)
+        dm_val = dm.bfloat16()
+        params_all_val = torch.tensor(params_all_val).bfloat16()
+        mask_val = torch.tensor(mask_val).bfloat16()
+
+        return x_train, y_train, dm_train, params_all_train, mask_train, x_val, y_val, dm_val, params_all_val, mask_val
+
 
     norm_delta = 100,
     norm_vel = 1000,
@@ -56,80 +108,133 @@ def train():
     npart_test = 128**3
     nMax_h = 20
     nvocab = 64
-    nrand_sel_box = 64
+    nrand_sel_box = 16
     Mstar_cut = 8
-    subsamp_ds = 2
-
-
-
-    # dtype = 'float16'
-    device_id = rank % torch.cuda.device_count()
+    subsamp_ds = 1
     sdir = '/mnt/home/spandey/ceph/GOTHAM/data/camels'
-    savefname = f'{sdir}/SPLIT_DATA_{Ndevices}_gpus_nspersim_subhalo_density3Dgrid_{grid_sbox}_isim_all_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_nvocab{nvocab}_lgMmin_{Mstar_cut}.h5'
-    # if rank == 0: print(f"Reading data from {savefname}", flush=True)
+    savefname = f'{sdir}/ALL_data_nspersim_subhalo_density3Dgrid_{grid_sbox}_isim_all_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_nvocab{nvocab}_lgMmin_{Mstar_cut}.h5'
+    if rank == 0: print(f"Reading data from {savefname}", flush=True)
+
+    # if rank == 0:
     with h5.File(savefname, 'r') as f:
-        x_train_gpu = torch.tensor(f[f'x_train_dev_{rank}'][:]).to(torch.long).to(device_id, non_blocking=True)
-        y_train_gpu = torch.tensor(f[f'y_train_dev_{rank}'][:]).to(torch.long).to(device_id, non_blocking=True)
-        mask_train_gpu = torch.tensor(f[f'mask_train_dev_{rank}'][:]).to(ptdtype).to(device_id, non_blocking=True)
-        params_train_gpu = torch.tensor(f[f'params_train_dev_{rank}'][:]).to(ptdtype).to(device_id, non_blocking=True)
-        dm_train_gpu = torch.tensor(f[f'dm_train_dev_{rank}'][:]).to(ptdtype).to(device_id, non_blocking=True)
-
-        x_val_gpu = torch.tensor(f[f'x_val_dev_{rank}'][:]).to(torch.long).to(device_id, non_blocking=True)
-        y_val_gpu = torch.tensor(f[f'y_val_dev_{rank}'][:]).to(torch.long).to(device_id, non_blocking=True)
-        mask_val_gpu = torch.tensor(f[f'mask_val_dev_{rank}'][:]).to(ptdtype).to(device_id, non_blocking=True)
-        params_val_gpu = torch.tensor(f[f'params_val_dev_{rank}'][:]).to(ptdtype).to(device_id, non_blocking=True)
-        dm_val_gpu = torch.tensor(f[f'dm_val_dev_{rank}'][:]).to(ptdtype).to(device_id, non_blocking=True)
-
+        params_repeated_all = f['params_repeated_all'][()]
+        # delta_box_all_squeezed_all = f['delta_box_all_squeezed_all'][()]
+        # delta_box_all_squeezed_all = np.moveaxis(delta_box_all_squeezed_all, -1, 1)
+        dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed_all = f['dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed_all'][()]
         nvocab_total = f['nvocab_total'][()]
-        grid_size = int(f['grid'][()])
+        grid_size = f['grid'][()]
         start_token = f['start_token'][()]
-        pad_token = int(f['pad_token'][()])
+        pad_token = f['pad_token'][()]
         end_token = f['end_token'][()]
-        max_sentence_length = f['max_sentence_length'][()]  
-    f.close()
+        max_sentence_length = f['max_sentence_length'][()]    
+        f.close()
+        
+    if rank == 0:
+        def read_hdf5_slice(args):
+            file_path, dataset_name, slice_index = args
+            with h5.File(file_path, 'r') as f:
+                dataset = f[dataset_name]
+                data_slice = dataset[slice_index, ...]
+            return data_slice[None, ...] 
 
-    # if rank == 0: print(f"Transferred data to GPU", flush=True)        
+        def load_hdf5_in_parallel(file_path, dataset_name, num_workers=4):
+            with h5.File(file_path, 'r') as f:
+                dataset = f[dataset_name]
+                num_slices = dataset.shape[0]  
+                slice_indices = list(range(num_slices))
 
-    # max_iters = 3000
+            args = [(file_path, dataset_name, idx) for idx in slice_indices]
+
+            with Pool(processes=num_workers) as pool:
+                slices = pool.map(read_hdf5_slice, args)
+
+            return slices 
+
+        dataset_name = "delta_box_all_squeezed_all"
+        # num_workers = 30  
+        # count the total number of cpus on the machine
+        num_workers = 50
+        print(f"Number of workers: {num_workers}")
+        slices = load_hdf5_in_parallel(savefname, dataset_name, num_workers)
+        combined_matrix = np.concatenate(slices, axis=0)  
+        delta_box_all_squeezed_all = np.moveaxis(combined_matrix, -1, 1)
+
+    from dataclasses import dataclass
+    max_iters = 3000
     eval_interval = 10
     learning_rate = 5e-4
     eval_iters = 8
-    n_embd = 96
-    # n_head = 8
-    # n_layer = 8
-
-    n_head = 6
-    n_layer = 6
-
+    n_embd = 64
+    n_head = 4
+    n_layer = 4
     dropout = 0.2
     nparams = 6 # number of parameters in camels to append to the CNN features output
     vocab_size = nvocab_total
     block_size = max_sentence_length - 1
-    print(f"block_size = {block_size}, vocab_size = {vocab_size}, pad_token = {pad_token}, max_sentence_length = {max_sentence_length}")
-    print(f"nembd = {n_embd}, nhead = {n_head}, nlayer = {n_layer}, nparams = {nparams}, dropout = {dropout}")
-    
-    HaloConfig = {'block_size': block_size, 'vocab_size': vocab_size, 'n_layer': n_layer, 
-                    'n_head': n_head, 'n_embd': n_embd, 'nparams': nparams, 'dropout': dropout, 
-                    'bias': True, 'ksize': 3, 'density_grid_in': grid_size, 'density_grid_out': 4, 
-                    'ninp_density': 30, 'pad_token': pad_token, 'flash': False}
 
+    # batch_size = 512
+
+
+    @dataclass
+    class HaloConfig:
+        block_size: int = block_size
+        vocab_size: int = vocab_size
+        n_layer: int = n_layer
+        n_head: int = n_head
+        n_embd: int = n_embd
+        nparams: int = nparams
+        dropout: float = dropout
+        bias: bool = True 
+
+        ksize : int = 3
+        density_grid_in : int = grid_size
+        density_grid_out : int = 4
+        ninp_density : int = 30
+
+        pad_token : int = pad_token
+        flash : bool = False
+
+
+
+
+
+
+    device_id = rank % torch.cuda.device_count()
+
+    dtype = 'bfloat16'
+
+    x_train, y_train, dm_train, params_train, mask_train, x_val, y_val, dm_val, params_val, mask_val = get_data_split(dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed_all, delta_box_all_squeezed_all, params_repeated_all, 0.8, 1.0)
+    if rank == 0: print(f"Got split with sizes {x_train.shape} and {x_val.shape}", flush=True)        
+
+
+    start = rank * (len(x_train) // torch.cuda.device_count())
+    end = start + (len(x_train) // torch.cuda.device_count())
+
+    x_train_gpu = (x_train[start:end,...]).to(device_id)
+    dm_train_gpu = (dm_train[start:end,...]).to(device_id)
+    params_train_gpu = (params_train[start:end,...]).to(device_id)
+    mask_train_gpu = (mask_train[start:end,...]).to(device_id)
+    y_train_gpu = (y_train[start:end,...]).to(device_id)
+    print(f"I am rank {rank} and will process train data from {start} to {end}.")
+    if rank == 0: print(f"Transferred train data to GPU", flush=True)        
+
+    start = rank * (len(x_val) // torch.cuda.device_count())
+    end = start + (len(x_val) // torch.cuda.device_count())
+    x_val_gpu = (x_val[start:end,...]).to(device_id, non_blocking=True)
+    dm_val_gpu = (dm_val[start:end,...]).to(device_id, non_blocking=True)
+    params_val_gpu = (params_val[start:end,...]).to(device_id, non_blocking=True)
+    mask_val_gpu = (mask_val[start:end,...]).to(device_id, non_blocking=True)
+    y_val_gpu = (y_val[start:end,...]).to(device_id, non_blocking=True)
+    print(f"I am rank {rank} and will process val data from {start} to {end}.")    
+    if rank == 0: print(f"Transferred test data to GPU", flush=True)        
 
     model = HaloDecoderModel(HaloConfig).to(device_id)
-
-    # load the model checkpoint:
-    cp_name = f'/mnt/home/spandey/ceph/GOTHAM/model_checkpoints/camels/model_encdec_ddp_PM_nvocab_64_nembed_64_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_RUN1.pt'
-    checkpoint = torch.load(cp_name, map_location=f'cuda:{device_id}')    
-    model.load_state_dict(checkpoint['model'])
-
-
     if rank == 0: print(f"Init model and loaded to GPU", flush=True)            
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
     scaler = torch.cuda.amp.GradScaler(enabled=(dtype == 'float16'))
 
     model = DDP(model, device_ids=[device_id])
-
-    
 
     def get_batch(split, ji=0, batch_size=None):
         if split == 'train':
@@ -154,7 +259,7 @@ def train():
             params = params[batch_size*(ji):batch_size*(ji+1)].to(device_id, non_blocking=True)
 
         return x, y, mask, dm, params
-
+    
     # helps estimate an arbitrarily accurate loss over either split using many batches
     @torch.no_grad()
     def estimate_loss():
@@ -199,21 +304,19 @@ def train():
         elif model == 'constant':
             return learning_rate
 
-
-
     iter_num = 0
     local_iter_num = 0 # number of iterations in the lifetime of this process
     running_mfu = -1.0    
     best_val_loss = 1e20
     # nbatches = 64
-    batch_size = 320
+    batch_size = 100
     nbatches = len(x_train_gpu) // batch_size
     print(f"nbatches = {nbatches}, total train size = {len(x_train_gpu)}")
     max_iters = 6000
     eval_interval = 20
     save_separate_interval = 100
 
-    # accumulation_steps = 1  # Accumulate gradients over 2 steps
+    accumulation_steps = 4  # Accumulate gradients over 2 steps
 
     while True:
         lr = get_lr(iter_num, model=decay_lr_model) if decay_lr else learning_rate
@@ -247,6 +350,10 @@ def train():
             with ctx:
                 _, loss = model(X, DM, params=PARAMS, maskd=MASK, targets=Y)
             scaler.scale(loss).backward()   
+            # if (ji + 1) % accumulation_steps == 0:
+            #     scaler.step(optimizer)
+            #     scaler.update()
+            #     optimizer.zero_grad(set_to_none=True)           
             torch.cuda.empty_cache() 
 
         scaler.step(optimizer)

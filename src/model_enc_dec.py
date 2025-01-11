@@ -304,8 +304,12 @@ class Block(nn.Module):
 import math
 class HaloDecoderModel(nn.Module):
 
-    def __init__(self, config):
+    def __init__(self, config_dict):
         super().__init__()
+        from dataclasses import dataclass, make_dataclass
+        fields = [(key, type(value)) for key, value in config_dict.items()]
+        DynamicDataClass = make_dataclass("DynamicDataClass", fields)
+        config = DynamicDataClass(**config_dict)
         self.config = config
         self.cnn3D = CNN3D_stackout(config.ksize,
                     config.density_grid_in,
@@ -367,8 +371,8 @@ class HaloDecoderModel(nn.Module):
         params_to_concat = params[:, None, :].expand(-1, xe.shape[1], -1)
         xe = torch.cat((xe, params_to_concat), dim=-1)
 
-        tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
-        pos_emb = self.transformer.wpe(pos) # position embeddings of shape (t, n_embd)
+        tok_emb = self.transformer.wte(idx.long()) # token embeddings of shape (b, t, n_embd)
+        pos_emb = self.transformer.wpe(pos.long()) # position embeddings of shape (t, n_embd)
         x = self.transformer.drop(tok_emb + pos_emb)
         for block in self.transformer.h:
             x = block(x, xe=xe, maskd=maskd)
