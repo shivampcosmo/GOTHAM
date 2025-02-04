@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from torch.nn.parallel import DistributedDataParallel as DDP
 from multiprocessing import Pool
 
+subsel_type = sys.argv[-1] if len(sys.argv) > 1 else "all"
 
 def setup(rank, world_size):
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
@@ -48,17 +49,12 @@ def train():
     print(f"Start running basic DDP example on rank {rank}.")
     Ndevices = torch.cuda.device_count()
 
-    norm_delta = 100,
-    norm_vel = 1000,
     BoxSize = 25.
     grid = 8
     grid_sbox = 32
-    npart_test = 128**3
-    nMax_h = 25
     nvocab = 64
-    nrand_sel_box = 64
-    Mstar_cut = 8
-    subsamp_ds = 1
+    nrand_sel_box = 128
+    subsamp_ds = 2
 
 
 
@@ -88,18 +84,32 @@ def train():
         max_sentence_length = f['max_sentence_length'][()]  
     f.close()
 
-    # if rank == 0: print(f"Transferred data to GPU", flush=True)        
+    if subsel_type == 'no_highz':
+        indices = torch.arange(6)
+    elif subsel_type == 'no_vel':
+        indices = torch.cat([torch.arange(i, i + 3) for i in range(0, 30, 6)])
+    elif subsel_type == 'no_env':        
+        indices1 = torch.cat([torch.arange(i+3, i + 6) for i in range(0, 30, 6)])
+        indices2 = torch.cat([torch.arange(i, i + 1) for i in range(0, 30, 6)])
+        indices, _ = torch.sort(torch.cat([indices1, indices2]))
+    else:
+        indices = torch.arange(dm_train_gpu.shape[1])
 
+    dm_train_gpu = dm_train_gpu[:,indices,...]
+    dm_val_gpu = dm_val_gpu[:,indices,...]
+
+    print(subsel_type, indices, dm_train_gpu.shape, dm_val_gpu.shape)
+    
     # max_iters = 3000
     eval_interval = 10
     learning_rate = 5e-4
     eval_iters = 8
-    n_embd = 96
+    n_embd = 128
     # n_head = 8
     # n_layer = 8
 
-    n_head = 6
-    n_layer = 6
+    n_head = 8
+    n_layer = 8
 
     dropout = 0.2
     nparams = 6 # number of parameters in camels to append to the CNN features output
@@ -111,7 +121,7 @@ def train():
     HaloConfig = {'block_size': block_size, 'vocab_size': vocab_size, 'n_layer': n_layer, 
                     'n_head': n_head, 'n_embd': n_embd, 'nparams': nparams, 'dropout': dropout, 
                     'bias': True, 'ksize': 3, 'density_grid_in': grid_size, 'density_grid_out': 4, 
-                    'ninp_density': 30, 'pad_token': pad_token, 'flash': False}
+                    'ninp_density': dm_train_gpu.shape[1], 'pad_token': pad_token, 'flash': False}
 
 
     model = HaloDecoderModel(HaloConfig).to(device_id)
@@ -207,7 +217,8 @@ def train():
     running_mfu = -1.0    
     best_val_loss = 1e20
     # nbatches = 64
-    batch_size = 320
+    # batch_size = 320
+    batch_size = 450   
     nbatches = len(x_train_gpu) // batch_size
     print(f"nbatches = {nbatches}, total train size = {len(x_train_gpu)}")
     max_iters = 6000
@@ -236,10 +247,10 @@ def train():
                             'lr': lr
                         }
                         print(f"saving checkpoint")
-                        torch.save(checkpoint, f'/projects/bdne/spandey3/GOTHAM/model_checkpoints/camels_photo_velx/model_hres_encdec_ddp_PM_nvocab_64_nembed_64_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}.pt')                                 
+                        torch.save(checkpoint, f'/projects/bdne/spandey3/GOTHAM/model_checkpoints/camels_photo_velx/model_hres_encdec_ddp_PM_nvocab_64_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_subselDMOfields_{subsel_type}.pt')                                 
 
                         if iter_num % save_separate_interval == 0 and (rank == 0):
-                            torch.save(checkpoint, f'/projects/bdne/spandey3/GOTHAM/model_checkpoints/camels_photo_velx/model_hres_encdec_ddp_PM_nvocab_64_nembed_64_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_iter_{iter_num}.pt')
+                            torch.save(checkpoint, f'/projects/bdne/spandey3/GOTHAM/model_checkpoints/camels_photo_velx/model_hres_encdec_ddp_PM_nvocab_64_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_iter_{iter_num}_subselDMOfields_{subsel_type}.pt')
 
         for ji in (range(nbatches)):
             model.require_backward_grad_sync = (ji == nbatches - 1)

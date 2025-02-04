@@ -2,9 +2,9 @@
 #SBATCH --account=bdne-dtai-gh
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1  # could be 1 for py-torch
-#SBATCH --cpus-per-task=64
-#SBATCH --time=0-12:30            # time (DD-HH:MM)
-#SBATCH --job-name=prep_DMO_data
+#SBATCH --cpus-per-task=32
+#SBATCH --time=0-1:00            # time (DD-HH:MM)
+#SBATCH --job-name=prep_gal_data
 #SBATCH --partition=ghx4
 #SBATCH --mem=512G
 #SBATCH --gpus-per-node=1
@@ -32,5 +32,5 @@ conda activate /u/spandey3/gotham
 which python
 
 
-time srun --export=ALL python /projects/bdne/spandey3/GOTHAM/prep_data/process_DMO_fields.py
+time srun --export=ALL python /projects/bdne/spandey3/GOTHAM/prep_data/process_gal_props.py
 echo "done"

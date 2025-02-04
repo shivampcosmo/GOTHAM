@@ -1,9 +1,4 @@
-
-
-
-
-# vel_m_truth.shape, pos_m_truth.shape
-def process_DMO_snaps(snap_fname, norm_delta = 100, norm_vel = 1000, BoxSize = 25., grid = 8, grid_sbox = 32, npart_test = 128**3):
+def process_DMO_snaps(snap_fname, norm_delta = 100, norm_vel = 1000, BoxSize = 25., grid = 8, grid_sbox = 32, npart_test = 128**3, nMax_part = 6000):
     import numpy as np
     import h5py as h5
     import numpy as np
@@ -12,20 +7,10 @@ def process_DMO_snaps(snap_fname, norm_delta = 100, norm_vel = 1000, BoxSize = 2
     import MAS_library as MASL
     import pickle as pk
     import readfof
-    import matplotlib
     import h5py as h5
-    import matplotlib.pyplot as pl
-    pl.rc('text', usetex=True)
-    # Palatino
-    pl.rc('font', family='DejaVu Sans')
     from ngp_funcs import NGP_mass, NGP_xyz, NGP_xyzM, NGP_xyz_vxvyvz
 
-
-
     np.random.seed(0)
-    # root = '/scratch/bdne/spandey3/camels_tng/DMO/CV'
-    # # z = {4:0, -1: 99, 3:0.5}[snapnum]
-    # # df = h5.File(f'{root}/CV_{isim_fid}/snapshot_090.hdf5', 'r')            
     df = h5.File(snap_fname, 'r')                
     pos = df['PartType1']['Coordinates'][()]/1000.
     vel = df['PartType1']['Velocities'][()]
@@ -33,27 +18,16 @@ def process_DMO_snaps(snap_fname, norm_delta = 100, norm_vel = 1000, BoxSize = 2
     # get random permutation of indices of particles:
     arg_rand_perm = np.random.permutation(len(pos))
 
-    # npart_test = 128**3
     ind = arg_rand_perm[:npart_test]
     pos_m_truth = pos[ind]
     vel_m_truth = vel[ind]
     ids_m_truth = ids[ind]
 
-    # npart_test = len(pos_m_truth)
-    # pos_m_truth = pos
-    # vel_m_truth = vel
-    # ids_m_truth = ids
-
-
-    # BoxSize = 25.
-    # grid = 8
-    # nMax_m = 32
     Npart = np.float32(np.zeros((grid, grid, grid)))
     MASL.NGP(np.float32(pos_m_truth), Npart, BoxSize)
 
-    nMax_h = 6000
 
-    dfpart_ngp_wxyz_vxvyvz = np.float32(np.zeros((grid, grid, grid, nMax_h, 6)))
+    dfpart_ngp_wxyz_vxvyvz = np.float32(np.zeros((grid, grid, grid, nMax_part, 6)))
     NGP_xyz_vxvyvz(np.float32(pos_m_truth), np.float32(vel_m_truth), dfpart_ngp_wxyz_vxvyvz, BoxSize)
 
     # from tqdm import tqdm
@@ -199,186 +173,173 @@ def process_LH_sim(isim_fid):
     import MAS_library as MASL
     import pickle as pk
     import readfof
-    import matplotlib
     import h5py as h5
-    import matplotlib.pyplot as pl
-    pl.rc('text', usetex=True)
-    # Palatino
-    pl.rc('font', family='DejaVu Sans')
     from ngp_funcs import NGP_mass, NGP_xyz, NGP_xyzM, NGP_xyz_vxvyvz    
-    nrand_sel_box = 64
-    snapnum = 90
-    # mass_type = 'rockstar_200c'
-    # h5.File('/scratch/bdne/spandey3/camels_tng/caesar/CV/CV_12/caesar_newsnaps_090.hdf5','r') 
-    snap_dir_base = f'/work/hdd/bdne/spandey3/camels_tng/hydro/LH'
-    snapdir = snap_dir_base + '/' + f'LH_{isim_fid}'  #folder hosting the catalogue
-    group_catalog = f'{snapdir}/groups_090.hdf5'
-    with h5.File(group_catalog, "r") as hf:
-        M_star = np.log10(hf['Subhalo/SubhaloMassType'][:,4]*1e10 + 0.1)
-        pos = hf['Subhalo/SubhaloPos'][:]/1000.
-
-
-    Mstar_cut = 8
-    indsel = np.where(M_star > Mstar_cut)[0]
-    pos_h_truth = pos[indsel]
-    prop_truth = M_star[indsel]
-    prop_min = Mstar_cut
-    prop_max = 11
-
-    norm_delta = 100,
-    norm_vel = 1000,
+    
+    nrand_sel_box = 128
+    norm_delta = 100.
+    norm_vel = 1000.
     BoxSize = 25.
     grid = 8
     grid_sbox = 32
-    npart_test = 128**3
-    nMax_h = 20
+    npart_test = 256**3
+    nMax_part = 24000
+    nMax_h = 25
     nvocab = 64
 
     sdir = '/work/hdd/bdne/spandey3/camels_tng/gotham_data/LH'
-    savefname = f'{sdir}/subhalo_density3Dgrid_{grid_sbox}_isim_{isim_fid}_nrandsubsel_{nrand_sel_box}_nvocab{nvocab}_lgMmin_{Mstar_cut}.pkl'
+    savefname_dmo_fields = f'{sdir}/DMO_fields/subhalo_densityvel3D_grid_{grid_sbox}_isim_{isim_fid}_nrandsubsel_{nrand_sel_box}_.pkl'
+
     # check if the file already exists:
-    if os.path.exists(savefname):
-        print(f'File {savefname} already exists. Skipping...')
-        return
+    if os.path.exists(savefname_dmo_fields):
+        rand_sel = pk.load(open(savefname_dmo_fields, 'rb'))['rand_sel']
     else:
-        root = '/scratch/bdne/spandey3/camels_tng/DMO/LH'
+        root = '/work/hdd/bdne/spandey3/camels_tng/DMO/LH'
         snapnums = [90, 84, 78, 70, 60]
-        # z = {4:0, -1: 99, 3:0.5}[snapnum]
         delta_box_all_squeezed = []
         for snapnum in snapnums:
-            print(isim_fid, snapnum)
             snap_fname = f'{root}/LH_{isim_fid}/snapshot_0{snapnum}.hdf5'
-            delta_box_all_squeezed_js = process_DMO_snaps(snap_fname, norm_delta = norm_delta, norm_vel = norm_vel, BoxSize = BoxSize, grid = grid, grid_sbox = grid_sbox, npart_test = npart_test)
+            delta_box_all_squeezed_js = process_DMO_snaps(snap_fname, norm_delta = norm_delta, norm_vel = norm_vel, BoxSize = BoxSize, grid = grid, grid_sbox = grid_sbox, npart_test = npart_test, nMax_part=nMax_part)
             if len(delta_box_all_squeezed) == 0:
                 delta_box_all_squeezed = delta_box_all_squeezed_js
             else:
                 delta_box_all_squeezed = np.concatenate((delta_box_all_squeezed, delta_box_all_squeezed_js), axis=-1)
-            # print(delta_box_all_squeezed.shape)
-        # elif grid == 128:
-        # BoxSize = 25.
-        # grid = 8
-        # nMax_h = 42
-        dfhalo_ngp_wxyzM = np.float32(np.zeros((grid, grid, grid, nMax_h, 4)))
-        NGP_xyzM(np.float32(pos_h_truth), np.float32(prop_truth), dfhalo_ngp_wxyzM, BoxSize)
-
-
-        # dfhalo_ngp_wxyzM_squeezed = np.reshape(dfhalo_ngp_wxyzM, (grid*grid*grid, nMax_h, 4))
-        Nhalos_truth = np.float32(np.zeros((grid, grid, grid)))
-        MASL.NGP(np.float32(pos_h_truth), Nhalos_truth, BoxSize)
-
-        prop_halos_argsort = np.flip(np.argsort(dfhalo_ngp_wxyzM[:,:,:,:,3], axis=-1), axis=-1)
-        xmin = BoxSize/grid/2
-        # lgMin = np.log10(Mmin_cut)
-        # lgMax = 15.5
-        dfhalo_ngp_xyzM_sorted_scaled = np.zeros_like(dfhalo_ngp_wxyzM)
-        for i1 in range(grid):
-            for i2 in range(grid):
-                for i3 in range(grid):
-                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, 0] = dfhalo_ngp_wxyzM[i1, i2, i3, prop_halos_argsort[i1, i2, i3], 0]
-                    indpos_x = np.where(dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, 0] != 0.0)[0]
-                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_x, 0] = (dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_x, 0] + xmin)/(2*xmin)
-
-                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, 1] = dfhalo_ngp_wxyzM[i1, i2, i3, prop_halos_argsort[i1, i2, i3], 1]
-                    indpos_y = np.where(dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, 1] != 0.0)[0]
-                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_y, 1] = (dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_y, 1] + xmin)/(2*xmin)
-
-                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, 2] = dfhalo_ngp_wxyzM[i1, i2, i3, prop_halos_argsort[i1, i2, i3], 2]
-                    indpos_z = np.where(dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, 2] != 0.0)[0]
-                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_z, 2] = (dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_z, 2] + xmin)/(2*xmin)
-
-                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, 3] = dfhalo_ngp_wxyzM[i1, i2, i3, prop_halos_argsort[i1, i2, i3], 3]
-                    indpos_M = np.where(dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, 3] != 0.0)[0]
-                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_M, 3] = (dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_M, 3] - prop_min)/(prop_max - prop_min)
-
-
-
-        indzeros = np.where(dfhalo_ngp_xyzM_sorted_scaled == 0.0)
-        dfhalo_ngp_xyzM_sorted_scaled[indzeros] = -1.0
-
-
-        # np.amin(dfhalo_ngp_xyzM_sorted_scaled), np.amax(dfhalo_ngp_xyzM_sorted_scaled)
-        # nvocab = 128
-        
-        bins_digitize = np.linspace(-1e-3, 1, nvocab)
-        # bins_digitize.insert(0, -1)
-        bins_digitize = np.insert(bins_digitize, 0, -1)
-        # bins_digitize
-        dfhalo_ngp_xyzM_sorted_scaled_digitized = np.digitize(dfhalo_ngp_xyzM_sorted_scaled, bins_digitize)
-
-        start_token = 0
-        pad_token = 1
-        end_token = nvocab + 1
-        space_token = nvocab + 2
-        max_sentence_length = 1 + nMax_h*4 + 1 + (nMax_h-1)
-        dfhalo_ngp_xyzM_tokenized = np.zeros((grid, grid, grid, max_sentence_length), dtype=np.int32) + end_token
-
-        dfhalo_ngp_xyzM_tokenized[..., 0] = start_token
-        # for jh in range(nMax_h):
-        jh = 1
-        while jh < 5*nMax_h:
-            # if dfhalo_ngp_xyzM_sorted_scaled_digitized[..., jh, 0] > 1:
-            dfhalo_ngp_xyzM_tokenized[..., jh + 0] = dfhalo_ngp_xyzM_sorted_scaled_digitized[..., jh//5, 3]
-            dfhalo_ngp_xyzM_tokenized[..., jh + 1] = dfhalo_ngp_xyzM_sorted_scaled_digitized[..., jh//5, 0]
-            dfhalo_ngp_xyzM_tokenized[..., jh + 2] = dfhalo_ngp_xyzM_sorted_scaled_digitized[..., jh//5, 1]
-            dfhalo_ngp_xyzM_tokenized[..., jh + 3] = dfhalo_ngp_xyzM_sorted_scaled_digitized[..., jh//5, 2]
-            if jh//5 < nMax_h - 1:
-                dfhalo_ngp_xyzM_tokenized[..., jh + 4] = space_token
-            # else:
-            #     dfhalo_ngp_xyzM_tokenized[..., 1 + nMax_h*4] = end_token
-            jh += 5
-
-
-
-        dfhalo_ngp_xyzM_tokenized_padded_ended = np.copy(dfhalo_ngp_xyzM_tokenized)
-        for i1 in range(grid):
-            for i2 in range(grid):
-                for i3 in range(grid):
-                    ind1 = np.where(dfhalo_ngp_xyzM_tokenized[i1, i2, i3,:] == 1)[0]
-                    try:
-                        ind1 = ind1[0]
-                        if ind1 == 1:
-                            dfhalo_ngp_xyzM_tokenized_padded_ended[i1, i2, i3, ind1] = end_token
-                            dfhalo_ngp_xyzM_tokenized_padded_ended[i1, i2, i3, ind1+1:] = pad_token
-                        else:
-                            dfhalo_ngp_xyzM_tokenized_padded_ended[i1, i2, i3, ind1-1] = end_token
-                            dfhalo_ngp_xyzM_tokenized_padded_ended[i1, i2, i3, ind1:] = pad_token
-                    except:
-                        dfhalo_ngp_xyzM_tokenized_padded_ended[i1, i2, i3, ind1-1] = end_token
-                        # dfhalo_ngp_xyzM_tokenized_padded_ended[i1, i2, i3, ind1:] = pad_token
-
-
-
-        dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed = np.reshape(dfhalo_ngp_xyzM_tokenized_padded_ended, (grid*grid*grid, max_sentence_length))
-        # dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed.shape
-
-        dfhalo_ngp_wxyzM_flatten = np.reshape(dfhalo_ngp_wxyzM, (grid*grid*grid, nMax_h, 4))
-        Nhalos_truth_flatten = np.reshape(Nhalos_truth, (grid*grid*grid,))
-        
-        rand_sel = np.sort(np.random.permutation(len(Nhalos_truth_flatten))[:nrand_sel_box])
-
-        saved = {'dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed':dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed.astype(np.int16)[rand_sel,...],
-                # 'dfhalo_ngp_wxyzM': dfhalo_ngp_wxyzM.astype(np.float32),
-                'Nhalos_truth_flatten': Nhalos_truth_flatten.astype(np.int16)[rand_sel],
-                'delta_box_all_squeezed': delta_box_all_squeezed.astype(np.float32)[rand_sel, ...],
+    
+        rand_sel = np.sort(np.random.permutation(delta_box_all_squeezed.shape[0]))[:nrand_sel_box]
+        saved = {'delta_box_all_squeezed': delta_box_all_squeezed.astype(np.float32)[rand_sel, ...],
                 'rand_sel': rand_sel,
-                'nvocab_total': nvocab + 3,
-                'max_sentence_length': max_sentence_length,
-                'grid': grid,
-                'grid_sbox': grid_sbox,
-                'nMax_h': nMax_h,
-                'BoxSize': BoxSize,
-                'prop_min': prop_min,
-                'prop_max': prop_max,
-                'xmin': xmin,
                 'norm_delta': norm_delta,
                 'norm_vel': norm_vel,
-                'start_token': start_token,
-                'pad_token': pad_token,
-                'end_token': end_token,
-                'space_token': space_token
+                 'nMax_part':nMax_part,
+                 'npart_test':npart_test
                 }
-        pk.dump(saved, open(savefname, 'wb'))
-        return
+        pk.dump(saved, open(savefname_dmo_fields, 'wb'))
+    
+    snapnum = 90
+    savefname_gals = f'{sdir}/gal_props/subhalo_proponly_snap_{snapnum}_grid_{grid_sbox}_isim_{isim_fid}_nrandsubsel_{nrand_sel_box}_nvocab{nvocab}_wSDSS_photometry_velx.pkl'
+
+    
+    snap_dir_base = f'/work/hdd/bdne/spandey3/camels_tng/hydro/'
+    group_catalog = f'{snap_dir_base}/LH/LH_{isim_fid}/groups_0{snapnum}.hdf5'
+    photo_catalog = f'{snap_dir_base}/Photometry/IllustrisTNG/L25n256/LH/IllustrisTNG_LH_{isim_fid}_photometry.hdf5'
+    # open the catalogue
+    with h5.File(photo_catalog, "r") as hf:
+        subhalo_index = np.array(hf[f"snap_0{snapnum}/SubhaloIndex"][:], dtype=int)
+        g_band = np.log10(hf[f"snap_0{snapnum}/BC03/photometry/luminosity/attenuated/SLOAN/SDSS.g"][:])
+        r_band = np.log10(hf[f"snap_0{snapnum}/BC03/photometry/luminosity/attenuated/SLOAN/SDSS.r"][:])
+        i_band = np.log10(hf[f"snap_0{snapnum}/BC03/photometry/luminosity/attenuated/SLOAN/SDSS.i"][:])
+
+    # Read the stellar masses of the subhalos/galaxies
+    with h5.File(group_catalog, "r") as hf:
+        M_star = np.log10(hf['Subhalo/SubhaloMassType'][:,4]*1e10 + 0.01) # Stellar masses in Msun/h
+        pos = hf['Subhalo/SubhaloPos'][:]/1000.
+        vel = hf['Subhalo/SubhaloVel'][:]/1000.
+
+    M_star = M_star[subhalo_index]
+    pos_h_truth = pos[subhalo_index]
+    vel_h_truth = vel[subhalo_index][:,0]
+    prop_truth_all = np.stack((M_star, g_band, r_band, i_band, vel_h_truth)).T
+
+    prop_min = np.array([7.75, 26, 26, 26, -0.75])
+    prop_max = np.array([11, 30, 30, 30, 0.75])    
+    ind_sort_prop = 0
+
+    dim_pos = pos_h_truth.shape[1]
+    dim_prop = prop_truth_all.shape[1]
+    
+    dfhalo_ngp_wxyz_props = np.float32(np.zeros((grid, grid, grid, nMax_h, dim_pos + dim_prop)))
+    NGP_xyz_prop(np.float32(pos_h_truth), np.float32(prop_truth_all), dfhalo_ngp_wxyz_props, BoxSize)
+
+    Nhalos_truth = np.float32(np.zeros((grid, grid, grid)))
+    MASL.NGP(np.float32(pos_h_truth), Nhalos_truth, BoxSize)
+
+    # sort the galaxies based on their stellar mass
+    prop_halos_argsort = np.flip(np.argsort(dfhalo_ngp_wxyz_props[:,:,:,:,dim_pos + ind_sort_prop], axis=-1), axis=-1)
+    xmin = BoxSize/grid/2
+    # lgMin = np.log10(Mmin_cut)
+    # lgMax = 15.5
+    dfhalo_ngp_xyzM_sorted_scaled = np.zeros_like(dfhalo_ngp_wxyz_props)
+    for i1 in range(grid):
+        for i2 in range(grid):
+            for i3 in range(grid):
+
+                for jp in range(dim_pos):
+                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, jp] = dfhalo_ngp_wxyz_props[i1, i2, i3, prop_halos_argsort[i1, i2, i3], jp]
+                    indpos_x = np.where(dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, jp] != 0.0)[0]
+                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_x, jp] = (dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_x, jp] + xmin)/(2*xmin)
+
+                for jp in range(dim_prop):
+                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, dim_pos + jp] = dfhalo_ngp_wxyz_props[i1, i2, i3, prop_halos_argsort[i1, i2, i3], dim_pos + jp]
+                    indpos_x = np.where(dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, :, dim_pos + jp] != 0.0)[0]
+                    dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_x, dim_pos + jp] = (dfhalo_ngp_xyzM_sorted_scaled[i1, i2, i3, indpos_x, dim_pos + jp] - prop_min[jp])/(prop_max[jp] - prop_min[jp])
+
+    indzeros = np.where(dfhalo_ngp_xyzM_sorted_scaled == 0.0)
+    dfhalo_ngp_xyzM_sorted_scaled[indzeros] = -1.0
+
+
+    bins_digitize = np.linspace(-1e-3, 1, nvocab)
+    bins_digitize = np.insert(bins_digitize, 0, -1)
+    dfhalo_ngp_xyzM_sorted_scaled_digitized = np.digitize(dfhalo_ngp_xyzM_sorted_scaled, bins_digitize)
+
+    start_token = 0
+    pad_token = 1
+    end_token = nvocab + 1
+    space_token = nvocab + 2
+    max_sentence_length = 1 + nMax_h*(dim_pos+dim_prop) + 1 + (nMax_h-1)
+    dfhalo_ngp_xyzM_tokenized = np.zeros((grid, grid, grid, max_sentence_length), dtype=np.int16) + end_token
+
+    dfhalo_ngp_xyzM_tokenized[..., 0] = start_token
+    # for jh in range(nMax_h):
+    jh = 1
+    word_length = 1 + dim_pos + dim_prop
+    while jh < (word_length)*nMax_h:
+        # if dfhalo_ngp_xyzM_sorted_scaled_digitized[..., jh, 0] > 1:
+        for jp in range(dim_pos + dim_prop):
+            dfhalo_ngp_xyzM_tokenized[..., jh + jp] = dfhalo_ngp_xyzM_sorted_scaled_digitized[..., jh//word_length, jp]
+        if jh//word_length < nMax_h - 1:
+            dfhalo_ngp_xyzM_tokenized[..., jh + word_length-1] = space_token
+        jh += word_length
+
+
+
+    dfhalo_ngp_xyzM_tokenized_padded_ended = np.copy(dfhalo_ngp_xyzM_tokenized)
+    for i1 in range(grid):
+        for i2 in range(grid):
+            for i3 in range(grid):
+                ind1 = np.where(dfhalo_ngp_xyzM_tokenized[i1, i2, i3,:] == 1)[0]
+                try:
+                    ind1 = ind1[0]
+                    if ind1 == 1:
+                        dfhalo_ngp_xyzM_tokenized_padded_ended[i1, i2, i3, ind1] = end_token
+                        dfhalo_ngp_xyzM_tokenized_padded_ended[i1, i2, i3, ind1+1:] = pad_token
+                    else:
+                        dfhalo_ngp_xyzM_tokenized_padded_ended[i1, i2, i3, ind1-1] = end_token
+                        dfhalo_ngp_xyzM_tokenized_padded_ended[i1, i2, i3, ind1:] = pad_token
+                except:
+                    dfhalo_ngp_xyzM_tokenized_padded_ended[i1, i2, i3, ind1-1] = end_token
+
+    dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed = np.reshape(dfhalo_ngp_xyzM_tokenized_padded_ended, (grid*grid*grid, max_sentence_length))
+    Nhalos_truth_flatten = np.reshape(Nhalos_truth, (grid*grid*grid,))    
+
+    saved = {'dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed':dfhalo_ngp_xyzM_tokenized_padded_ended_squeezed.astype(np.int16)[rand_sel,...],
+            'Nhalos_truth_flatten': Nhalos_truth_flatten.astype(np.int16)[rand_sel],
+            'rand_sel': rand_sel,
+            'nvocab_total': nvocab + 3,
+            'max_sentence_length': max_sentence_length,
+            'grid': grid,
+            'grid_sbox': grid_sbox,
+            'nMax_h': nMax_h,
+            'BoxSize': BoxSize,
+            'prop_min': prop_min,
+            'prop_max': prop_max,
+            'xmin': xmin,
+            'start_token': start_token,
+            'pad_token': pad_token,
+            'end_token': end_token,
+            'space_token': space_token
+            }
+    pk.dump(saved, open(savefname_gals, 'wb'))
+    return
 
 
 import multiprocessing as mp
