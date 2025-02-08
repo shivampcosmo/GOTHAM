@@ -51,9 +51,17 @@ def process_LH_sim(isim_fid):
     snapnums = [90, 84, 78, 70, 60]
     
     
-    import numpy as np
-    np.random.seed(0)
-    rand_sel = np.sort(np.random.randint(0, grid**3, nrand_sel_box)).astype(int)
+    # import numpy as np
+    # np.random.seed(0)
+    # rand_sel = np.sort(np.random.randint(0, grid**3, nrand_sel_box)).astype(int)
+    # rand_sel = (np.arange(grid**3)[:nrand_sel_box]).astype(int)
+    if nrand_sel_box < grid**3:
+        import numpy as np
+        np.random.seed(0)
+        ind_all = np.arange(grid**3)
+        rand_sel = (np.random.permutation(ind_all)[:nrand_sel_box]).astype(int)
+    else:
+        rand_sel = np.arange(grid**3)
     
     sdir = '/work/hdd/bdne/spandey3/camels_tng/gotham_data/LH/DMO_fields'
     savefname_dmo_fields = f'{sdir}/DMO_fields_grid_{grid_sbox}_isim_{isim_fid}_nrandsubsel_{nrand_sel_box}_MAS_{MAS_type}_nsnaps_{len(snapnums)}.pkl'
@@ -127,7 +135,7 @@ if __name__ == '__main__':
     n_sims_offset = 0
     n_sims = 1000
     # n_cores = mp.cpu_count()
-    n_cores = 4
+    n_cores = 5
     print(n_cores)
 
     # Create a pool of worker processes

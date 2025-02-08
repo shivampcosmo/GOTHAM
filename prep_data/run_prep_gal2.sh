@@ -32,5 +32,5 @@ conda activate /u/spandey3/gotham
 which python
 
 
-time srun --export=ALL python /projects/bdne/spandey3/GOTHAM/prep_data/process_gal_props.py 0
+time srun --export=ALL python /projects/bdne/spandey3/GOTHAM/prep_data/process_gal_props.py 1
 echo "done"

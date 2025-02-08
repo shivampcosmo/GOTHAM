@@ -5,7 +5,9 @@ import pickle as pk
 import h5py as h5
 from ngp_funcs import NGP_xyz_prop 
 import skimage.measure as skmeasure
+import ast
 
+add_space_token = bool(ast.literal_eval(sys.argv[-1]))
 
 def mat_reshape(mat, grid1, grid2):
     '''
@@ -39,6 +41,9 @@ def get_padded_mat(Npart, n_pad, grid_sbox, grid):
                 Npart_pad1_reduce[jx, jy, jz] = skmeasure.block_reduce(Npart_pad1[jx, jy, jz], (fac, fac, fac), np.mean)
     return Npart_pad1_reduce, Npart_pad1
 
+
+
+
 def process_LH_sim(isim_fid):
     import numpy as np
     import sys,os
@@ -49,19 +54,23 @@ def process_LH_sim(isim_fid):
     import skimage.measure as skmeasure
     
     nrand_sel_box = 128
+    # nrand_sel_box = 512 
     BoxSize = 25.
     grid = 8
     nvocab = 64
+    # Mstar_cut = 8.75
+    Mstar_cut = 9.0   
     grid_sbox = nvocab
     grid_tot = grid_sbox * grid
     
-    prop_min = np.array([7.5, 26, 26, 26, -0.5])
-    prop_max = np.array([11.5, 30, 30, 30, 0.5])
+    prop_min = np.array([9.0, 26, 26, 26, -0.45])
+    prop_max = np.array([12.0, 30, 30, 30, 0.45])
     
-    Npoints_max_per_subvol = 25
+    Npoints_max_per_subvol = 40
     #sort by Mstar token:
     ind_token_to_sort = 3
-    add_space_token = False
+    # add_space_token = False
+    # add_space_token = True
     
     dim_pos = 3
     dim_prop = len(prop_min)
@@ -72,14 +81,21 @@ def process_LH_sim(isim_fid):
     pad_token = nvocab + 3
     end_token = nvocab + 4
 
-    import numpy as np
-    np.random.seed(0)
-    rand_sel = np.sort(np.random.randint(0, grid**3, nrand_sel_box)).astype(int)
-    
+    # import numpy as np
+    # np.random.seed(0)
+    # rand_sel = np.sort(np.random.randint(0, grid**3, nrand_sel_box)).astype(int)
+    # rand_sel = (np.arange(grid**3)[:nrand_sel_box]).astype(int)
+    if nrand_sel_box < grid**3:
+        import numpy as np
+        np.random.seed(0)
+        ind_all = np.arange(grid**3)
+        rand_sel = (np.random.permutation(ind_all)[:nrand_sel_box]).astype(int)
+    else:
+        rand_sel = np.arange(grid**3)
         
     sdir = '/work/hdd/bdne/spandey3/camels_tng/gotham_data/LH'
     snapnum = 90
-    savefname_gals = f'{sdir}/gal_props/galaxy_props_snap_{snapnum}_grid_{grid_sbox}_isim_{isim_fid}_nrandsubsel_{nrand_sel_box}_nvocab{nvocab}_wSDSS_photometry_velx.pkl'
+    savefname_gals = f'{sdir}/gal_props/galaxy_props_snap_{snapnum}_grid_{grid_sbox}_isim_{isim_fid}_nrandsubsel_{nrand_sel_box}_nvocab{nvocab}_spacetoken_{add_space_token}_wSDSS_photometry_velx_Mstarcut_{Mstar_cut}.pkl'
     
     
     snap_dir_base = f'/work/hdd/bdne/spandey3/camels_tng/hydro/'
@@ -102,6 +118,11 @@ def process_LH_sim(isim_fid):
     pos_h_truth = pos[subhalo_index]
     vel_h_truth = vel[subhalo_index][:,0]
     prop_truth_all = np.stack((M_star, g_band, r_band, i_band, vel_h_truth)).T
+    # print(np.amin(vel_h_truth), np.amax(vel_h_truth))
+    indsel = np.where(M_star > Mstar_cut)[0]
+    prop_truth_all = prop_truth_all[indsel,:]
+    pos_h_truth = pos_h_truth[indsel,:]
+    
     
     dim_pos = pos_h_truth.shape[1]
     dim_prop = prop_truth_all.shape[1]
@@ -111,9 +132,8 @@ def process_LH_sim(isim_fid):
     MASL.NGP(np.float32(pos_h_truth), Nhalos_truth, BoxSize)
     Nhalos_truth_rs = np.reshape(Nhalos_truth, (grid, grid_sbox, grid, grid_sbox, grid, grid_sbox))
     Nhalos_truth_rs = mat_reshape(Nhalos_truth, grid, grid_sbox)
-
-    nMax_points = int(np.amax(Nhalos_truth_rs))
     
+    nMax_points = int(np.amax(Nhalos_truth_rs))
     
     dfhalo_ngp_wxyz_props = np.float32(np.zeros((grid_tot, grid_tot, grid_tot, nMax_points, dim_pos + dim_prop)))
     NGP_xyz_prop(np.float32(pos_h_truth), np.float32(prop_truth_all), dfhalo_ngp_wxyz_props, BoxSize)
@@ -126,8 +146,7 @@ def process_LH_sim(isim_fid):
         max_sentence_length = 1 + Npoints_max_per_subvol*dim_tot + 1
     
     bins_digitize = np.linspace(-1e-3, 1, nvocab)
-    bins_digitize = np.insert(bins_digitize, 0, -1)
-    
+    Ntot_sel_final = 0
     sentences_all = np.zeros((grid, grid, grid, max_sentence_length), dtype=np.int16)
     for jx in range(grid):
         for jy in range(grid):
@@ -136,7 +155,7 @@ def process_LH_sim(isim_fid):
                 Npoints_here = Nhalos_truth_rs[jx, jy, jz]
                 indsel = np.where(Npoints_here > 0)
                 Npoints_sel = Npoints_here[indsel]
-                Npoints_sel_tot = np.sum(Npoints_sel)
+                Npoints_sel_tot = int(np.sum(Npoints_sel))
                 all_points_props_here_sel = all_points_props_here[indsel]
                 word_array_all = []
                 if len(Npoints_sel) > 0:    
@@ -161,7 +180,9 @@ def process_LH_sim(isim_fid):
                     sort_inds = np.flip(np.argsort(tosort_token_all))
                     word_array_all = word_array_all[sort_inds]
                     if Npoints_sel_tot > Npoints_max_per_subvol:
-                        word_array_all = word_array_all[:Npoints_max_per_subvol]        
+                        # print(isim_fid, ' LH-SIM HAS MORE POINTS (',Npoints_sel_tot,Npoints_max_per_subvol, ') THAN MAXIMUM IN THE', jx, jy, jz, ' THIS SUBVOLUME!!! max-sent-length: ',max_sentence_length)
+                        word_array_all = word_array_all[:Npoints_max_per_subvol]    
+                    Ntot_sel_final += len(word_array_all)
                     if add_space_token:
                         space_array = (np.array(np.zeros(word_array_all.shape[0]) + space_token, dtype=np.int16))[:,None]
                         word_array_all_concat = np.concatenate((word_array_all, space_array), axis=1)
@@ -171,17 +192,21 @@ def process_LH_sim(isim_fid):
                 else:
                     sentence_here = np.array([start_token, end_token], dtype=np.int16)
     
-                npad = Npoints_max_per_subvol - len(word_array_all)
+                npad = max_sentence_length - len(sentence_here)
                 if npad > 0:
-                    pad_mat = np.array(np.zeros((npad, dim_tot)) + pad_token, dtype=np.int16)
-                    sentence_pad = pad_mat.flatten()
+                    # pad_mat = np.array(np.zeros((npad, dim_tot)) + pad_token, dtype=np.int16)
+                    # sentence_pad = pad_mat.flatten()
+                    sentence_pad = np.array(np.zeros(npad) + pad_token, dtype=np.int16)
                     sentence_here = np.concatenate((sentence_here, sentence_pad))
+                    
                 sentences_all[jx, jy, jz] = sentence_here
     
     story_full = sentences_all.reshape((grid**3, max_sentence_length))
+    if int(np.sum(Nhalos_truth)) > Ntot_sel_final:
+        print(isim_fid, np.round(int(np.sum(Nhalos_truth))/Ntot_sel_final, 3))
     
     saved = {'story_full': story_full.astype(np.int16)[rand_sel, ...],
-             'Nhalos_truth_rs':Nhalos_truth_rs,
+             # 'Nhalos_truth_rs':Nhalos_truth_rs,
             'max_sentence_length': max_sentence_length,
             'grid': grid,
             'grid_sbox': grid_sbox,
@@ -189,12 +214,16 @@ def process_LH_sim(isim_fid):
             'BoxSize': BoxSize,
             'prop_min': prop_min,
             'prop_max': prop_max,
+             'nvocab':nvocab,
             'start_token': start_token,
             'pad_token': pad_token,
             'end_token': end_token,
-            'space_token': space_token
+            'space_token': space_token,
+            'bins_digitize':bins_digitize,
+            'rand_sel': rand_sel
             }
     pk.dump(saved, open(savefname_gals, 'wb'))
+
 
 
 
@@ -204,7 +233,7 @@ if __name__ == '__main__':
     n_sims_offset = 0
     n_sims = 1000
     # n_cores = mp.cpu_count()
-    n_cores = 8
+    n_cores = 6
     print(n_cores)
 
     # Create a pool of worker processes

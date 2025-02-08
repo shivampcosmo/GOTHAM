@@ -3,10 +3,10 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1  # could be 1 for py-torch
 #SBATCH --cpus-per-task=64
-#SBATCH --time=0-12:30            # time (DD-HH:MM)
+#SBATCH --time=0-05:00            # time (DD-HH:MM)
 #SBATCH --job-name=prep_DMO_data
 #SBATCH --partition=ghx4
-#SBATCH --mem=512G
+#SBATCH --mem=720G
 #SBATCH --gpus-per-node=1
 #SBATCH --output=/projects/bdne/spandey3/GOTHAM/prep_data/logs/%x.%j.out
 #SBATCH --error=/projects/bdne/spandey3/GOTHAM/prep_data/logs/%x.%j.err

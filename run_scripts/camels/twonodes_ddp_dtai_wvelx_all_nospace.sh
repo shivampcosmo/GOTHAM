@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --account=bdne-dtai-gh
-#SBATCH --nodes=1
+#SBATCH --nodes=2
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-gpu=15
-#SBATCH --time=08:00:00
-#SBATCH --job-name=LLM_wvel
+#SBATCH --time=05:30:00
+#SBATCH --job-name=TWO_NODES
 #SBATCH --partition=ghx4
 #SBATCH --mem=512G
 #SBATCH --gpus-per-node=4
@@ -49,5 +49,5 @@ srun --export=ALL python `which torchrun` \
         --rdzv_id $SLURM_JOB_ID \
         --rdzv_backend c10d \
         --rdzv_endpoint $master_node:29500 \
-        train_dtai_wvel.py
+        train_dtai_wvel.py 0 all
 echo "done"
