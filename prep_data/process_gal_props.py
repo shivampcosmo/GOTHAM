@@ -63,8 +63,8 @@ def process_LH_sim(isim_fid):
     grid_sbox = nvocab
     grid_tot = grid_sbox * grid
     
-    prop_min = np.array([9.0, 26, 26, 26, -0.45])
-    prop_max = np.array([12.0, 30, 30, 30, 0.45])
+    prop_min = np.array([9.0, 26.5, 26.5, 26.5, -0.45])
+    prop_max = np.array([12.0, 30.5, 30.5, 30.5, 0.45])
     
     Npoints_max_per_subvol = 40
     #sort by Mstar token:

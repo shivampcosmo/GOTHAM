@@ -3,7 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1  # could be 1 for py-torch
 #SBATCH --cpus-per-task=64
-#SBATCH --time=0-1:00            # time (DD-HH:MM)
+#SBATCH --time=0-00:20            # time (DD-HH:MM)
 #SBATCH --job-name=prep_gal_data
 #SBATCH --partition=ghx4
 #SBATCH --mem=720G

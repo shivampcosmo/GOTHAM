@@ -311,20 +311,24 @@ class HaloDecoderModel(nn.Module):
         DynamicDataClass = make_dataclass("DynamicDataClass", fields)
         config = DynamicDataClass(**config_dict)
         self.config = config
-        self.cnn3D = CNN3D_stackout(config.ksize,
-                    config.density_grid_in,
-                    config.density_grid_out,
-                    config.ninp_density,
-                    config.n_embd - config.nparams,
-                    layers_types=config.layers_types
-                                   )        
+        if self.config.cnn_cond:
+            self.cnn3D = CNN3D_stackout(config.ksize,
+                        config.density_grid_in,
+                        config.density_grid_out,
+                        config.ninp_density,
+                        config.n_embd - config.nparams,
+                        layers_types=config.layers_types
+                                       )        
+        if self.config.halo_cond:
+            self.hte_cond = nn.Embedding(config.vocab_size_condf, config.n_embd - config.nparams)
+            self.drop_cond = nn.Dropout(config.dropout)
         # each token directly reads off the logits for the next token from a lookup table
         # self.token_embedding_table = nn.Linear(config.vocab_size, config.n_embd)
         # self.position_embedding_table = nn.Embedding(block_size, n_embd)
         # self.blocks = nn.Sequential(*[Block(n_embd, n_head=n_head) for _ in range(n_layer)])
         # self.blocks = nn.ModuleList([Block(n_embd, n_head=n_head) for _ in range(n_layer)])
         self.transformer = nn.ModuleDict(dict(
-            wte = nn.Embedding(config.vocab_size, config.n_embd),
+            wte = nn.Embedding(config.vocab_size, config.n_embd, padding_idx=config.pad_token),
             wpe = nn.Embedding(config.block_size, config.n_embd),
             drop = nn.Dropout(config.dropout),
             h = nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
@@ -363,13 +367,24 @@ class HaloDecoderModel(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
-    def forward(self, idx, density_all, params=None, maskd=None, targets=None):
+    def forward(self, idx, density_all=None, halo_info_idx=None, params=None, maskd=None, targets=None):
         device = idx.device
         b, t = idx.size()
         assert t <= self.config.block_size, f"Cannot forward sequence of length {t}, block size is only {self.config.block_size}"
         pos = torch.arange(0, t, dtype=torch.long, device=device) # shape (t)
+        if self.config.cnn_cond:
+            xe1 = self.cnn3D(density_all)
+        else:
+            xe1 = 1
 
-        xe = self.cnn3D(density_all)
+        if self.config.halo_cond:
+            tok_emb_cond = self.hte_cond(halo_info_idx.long()) # token embeddings of shape (b, t, n_embd)
+            xe2 = self.drop_cond(tok_emb_cond)
+        else:
+            xe2 = 1
+
+        xe = xe1 + xe2
+                    
         params_to_concat = params[:, None, :].expand(-1, xe.shape[1], -1)
         xe = torch.cat((xe, params_to_concat), dim=-1)
 

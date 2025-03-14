@@ -32,5 +32,5 @@ conda activate /u/spandey3/gotham
 which python
 
 
-time srun --export=ALL python /projects/bdne/spandey3/GOTHAM/prep_data/process_DMO_fields.py
+time srun --export=ALL python /projects/bdne/spandey3/GOTHAM/prep_data/process_DMO_fields.py 8
 echo "done"

@@ -49,5 +49,5 @@ srun --export=ALL python `which torchrun` \
         --rdzv_id $SLURM_JOB_ID \
         --rdzv_backend c10d \
         --rdzv_endpoint $master_node:29500 \
-        train_dtai_wvel.py 0 no_env
+        train_dtai_wvel.py 32 0 no_env
 echo "done"

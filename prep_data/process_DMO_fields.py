@@ -5,7 +5,9 @@ import pickle as pk
 import h5py as h5
 from ngp_funcs import NGP_xyz_prop 
 import skimage.measure as skmeasure
+import ast
 
+grid_sbox = int(ast.literal_eval(sys.argv[-1]))
 
 def mat_reshape(mat, grid1, grid2):
     '''
@@ -45,7 +47,7 @@ def process_LH_sim(isim_fid):
     norm_vel = 500
     BoxSize = 25.
     grid = 8
-    grid_sbox = 32
+    # grid_sbox = 32
     MAS_type = 'NGP'
     grid_tot = grid_sbox * grid
     snapnums = [90, 84, 78, 70, 60]
