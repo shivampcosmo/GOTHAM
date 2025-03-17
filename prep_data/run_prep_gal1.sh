@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --time=8:00:00
+#SBATCH --time=04:00:00
 #SBATCH -C genoa
 #SBATCH --job-name=TEST1
 #SBATCH -p ccm
@@ -25,5 +25,5 @@ source ~/miniconda3/bin/activate nbodykit
 
 cd /mnt/home/spandey/ceph/halo_gotham/GOTHAM/prep_data/
 
-time srun python /mnt/home/spandey/ceph/halo_gotham/GOTHAM/prep_data/process_halo_props.py 300 100
+time srun python /mnt/home/spandey/ceph/halo_gotham/GOTHAM/prep_data/process_halo_props.py 100 0
 echo "done"

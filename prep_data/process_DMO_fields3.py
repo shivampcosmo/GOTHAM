@@ -44,14 +44,14 @@ def get_padded_mat(Npart, n_pad, grid_sbox, grid):
                 Npart_pad1_reduce[jx, jy, jz] = skmeasure.block_reduce(Npart_pad1[jx, jy, jz], (fac, fac, fac), np.mean)
     return Npart_pad1_reduce, Npart_pad1
 
-def process_LH_sim(isim_fid, grid_sbox = 32):
+def process_LH_sim(isim_fid, grid_sbox = 8):
     try:
-        nrand_sel_box = 128
-        # nrand_sel_box = 512
-        norm_delta = 100
-        norm_vel = 1000
+        nrand_sel_box = 8192
+        # nrand_sel_box = 4096
+        norm_delta = 50
+        norm_vel = 2000
         BoxSize = 1000.
-        grid = 8
+        grid = 32
 
         MAS_type = 'CIC'
         grid_tot = grid_sbox * grid
@@ -62,7 +62,7 @@ def process_LH_sim(isim_fid, grid_sbox = 32):
         snapnums_to_z_dict = {90:0.0, 73:0.5, 61:1.0}
 
 
-        sdir = '/mnt/home/spandey/ceph/Quijote/halo_gotham_data/LH/DMO_fields'
+        sdir = '/mnt/home/spandey/ceph/Quijote/halo_gotham_data/LH/DMO_fields_ng32'
         savefname_dmo_fields = f'{sdir}/DMO_fields_grid_{grid_sbox}_isim_{isim_fid}_nrandsubsel_{nrand_sel_box}_MAS_{MAS_type}_nsnaps_{len(snapnums)}.pkl'
 
         # check if file exists:
