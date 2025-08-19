@@ -1,0 +1,10 @@
+/work/nvme/bdne/spandey3/camels_tng/gotham_data/LH/DMO_fields_ns512/DMO_fields_grid_16_isim_0_nrandsubsel_512_MAS_NGP_nsnaps_5.npy 0
+/work/nvme/bdne/spandey3/camels_tng/gotham_data/LH/DMO_fields_ns512/DMO_fields_grid_16_isim_1_nrandsubsel_512_MAS_NGP_nsnaps_5.npy 1
+/work/nvme/bdne/spandey3/camels_tng/gotham_data/LH/DMO_fields_ns512/DMO_fields_grid_16_isim_2_nrandsubsel_512_MAS_NGP_nsnaps_5.npy 2
+/work/nvme/bdne/spandey3/camels_tng/gotham_data/LH/DMO_fields_ns512/DMO_fields_grid_16_isim_3_nrandsubsel_512_MAS_NGP_nsnaps_5.npy 3
+/work/nvme/bdne/spandey3/camels_tng/gotham_data/LH/DMO_fields_ns512/DMO_fields_grid_16_isim_4_nrandsubsel_512_MAS_NGP_nsnaps_5.npy 4
+/work/nvme/bdne/spandey3/camels_tng/gotham_data/LH/DMO_fields_ns512/DMO_fields_grid_16_isim_5_nrandsubsel_512_MAS_NGP_nsnaps_5.npy 5
+/work/nvme/bdne/spandey3/camels_tng/gotham_data/LH/DMO_fields_ns512/DMO_fields_grid_16_isim_6_nrandsubsel_512_MAS_NGP_nsnaps_5.npy 6
+/work/nvme/bdne/spandey3/camels_tng/gotham_data/LH/DMO_fields_ns512/DMO_fields_grid_16_isim_7_nrandsubsel_512_MAS_NGP_nsnaps_5.npy 7
+/work/nvme/bdne/spandey3/camels_tng/gotham_data/LH/DMO_fields_ns512/DMO_fields_grid_16_isim_8_nrandsubsel_512_MAS_NGP_nsnaps_5.npy 8
+/work/nvme/bdne/spandey3/camels_tng/gotham_data/LH/DMO_fields_ns512/DMO_fields_grid_16_isim_9_nrandsubsel_512_MAS_NGP_nsnaps_5.npy 9
