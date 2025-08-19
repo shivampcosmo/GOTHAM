@@ -1,3 +1,6 @@
+tmp/*
+log/*
+logs/*
 data/*
 model_checkpoints/*
 results/*
