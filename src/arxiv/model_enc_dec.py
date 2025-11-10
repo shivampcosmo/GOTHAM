@@ -20,7 +20,7 @@ from cbam import *
 # from vit import *
 from vit_wpos_embed import *
 import math
-from torch.utils.checkpoint import checkpoint
+
 
 # class ResidualBlock(nn.Module):
 #     """
@@ -485,7 +485,7 @@ class Attention(nn.Module):
             attn_causal_mask = attn_causal_mask.masked_fill(attn_causal_mask == 1., 0.0)
             self.register_buffer("attn_causal_mask", attn_causal_mask)            
 
-    def forward(self, xd, xe=None, maskd=None, maske=None, return_kv=False, use_cache=False, q=None, k=None, v=None, batch_size=None, ptdtype=torch.float16):
+    def forward(self, xd, xe=None, maskd=None, maske=None, return_kv=False, use_cache=False, q=None, k=None, v=None, batch_size=None):
         if use_cache:
             # If using cache, q should be the query for the new token and k,v should be cached
             assert k is not None and v is not None
@@ -536,9 +536,7 @@ class Attention(nn.Module):
                 k = self.rope.apply_rotary_pos_emb(k, sin_e, cos_e)
                 
             if self.flash:
-                
-                with torch.backends.cuda.sdp_kernel(enable_flash=True, enable_math=True, enable_mem_efficient=True):
-                    y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=maske, dropout_p=self.dropout if self.training else 0, is_causal=False)       
+                y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=maske, dropout_p=self.dropout if self.training else 0, is_causal=False)       
             else:
                 # manual implementation of attention
                 att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
@@ -564,32 +562,7 @@ class Attention(nn.Module):
                 else:
                     attn_mask = mask_causal + maskd
                 # y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=attn_mask, dropout_p=self.dropout if self.training else 0, is_causal=False)
-                import torch.utils.benchmark as benchmark
-
-                def check_flash_attention_compatible(q, k, v, attn_mask):
-                    try:
-                        with torch.backends.cuda.sdp_kernel(enable_flash=True, enable_math=False, enable_mem_efficient=False):
-                            torch.nn.functional.scaled_dot_product_attention(
-                                q, k, v, attn_mask=attn_mask, dropout_p=0.0, is_causal=False)
-                        return True
-                    except RuntimeError as e:
-                        print(f"Flash Attention not compatible: {e}")
-                        return False
-
-                # Add inside your forward method before the attention calculation:
-                is_compatible = check_flash_attention_compatible(q.to(ptdtype), k.to(ptdtype), v.to(ptdtype), attn_mask)
-                print(f"Flash Attention compatible: {is_compatible}")
-
-                with torch.backends.cuda.sdp_kernel(enable_flash=True, enable_math=False, enable_mem_efficient=False):
-                    y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=attn_mask, dropout_p=self.dropout if self.training else 0, is_causal=False)
-                # def attention_fn(q, k, v, mask):
-                #     return torch.nn.functional.scaled_dot_product_attention(
-                #         q, k, v, 
-                #         attn_mask=mask, 
-                #         dropout_p=self.dropout if self.training else 0, 
-                #         is_causal=False
-                #     )
-                # y = checkpoint(attention_fn, q, k, v, attn_mask)
+                y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=attn_mask, dropout_p=self.dropout if self.training else 0, is_causal=False)
             else:
                 # manual implementation of attention
                 att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
@@ -787,7 +760,6 @@ class HaloDecoderModel(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
-    @torch.cuda.amp.autocast()
     def forward(self, idx, density_all, params=None, maskd=None, targets=None, loss_type='cross_entropy'):
         device = idx.device
         b, t = idx.size()
@@ -811,8 +783,6 @@ class HaloDecoderModel(nn.Module):
         if targets is not None:
             # if we are given some desired targets also calculate the loss
             logits = self.lm_head(x)
-            logits = torch.nan_to_num(logits, nan=-5e2, posinf=-5e2, neginf=-5e2)
-            logits = torch.clamp(logits, min=-5e2, max=5e2)  # clamp logits to avoid NaNs
             if loss_type == 'cross_entropy':
                 loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=self.config.pad_token)
             elif loss_type == 'EMD':

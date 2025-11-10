@@ -39,13 +39,17 @@ def parse_args():
                         default=False, help='Whether to add space token')
     parser.add_argument('--subsel_type', type=str, default='all',
                         help='Subset selection type')
-    parser.add_argument('--learning_rate', type=float, default=5e-4,
+    parser.add_argument('--learning_rate', type=float, default=2e-4,
                         help='Learning rate')
-    parser.add_argument('--max_iters', type=int, default=250,
+    parser.add_argument('--max_iters', type=int, default=400,
                         help='Maximum iterations')
-    parser.add_argument('--loss_type', type=str, default='EMD',
+    parser.add_argument('--n_embd', type=int, default=192,
+                        help='Embedding dimension')                        
+    parser.add_argument('--patch_size', type=int, default=1,
+                        help='Patch size for Vision Transformer')                                                
+    parser.add_argument('--loss_type', type=str, default='cross_entropy',
                         help='Maximum iterations')    
-    parser.add_argument('--cnn_type', type=str, default='res_cbam',
+    parser.add_argument('--cnn_type', type=str, default='vit',
                         help='Maximum iterations')                            
     args = parser.parse_args()
     return args
@@ -59,6 +63,8 @@ if __name__ == "__main__":
     max_iters = args.max_iters
     loss_type = args.loss_type
     cnn_type = args.cnn_type
+    n_embd = args.n_embd
+    patch_size = args.patch_size
     print(f"grid_sbox = {grid_sbox}, add_space_token = {add_space_token}, subsel_type = {subsel_type}, learning_rate = {learning_rate}, max_iters = {max_iters}, loss_type = {loss_type}, cnn_type = {cnn_type}")
     # print(f"grid_sbox = {grid_sbox}, add_space_token = {add_space_token}, subsel_type = {subsel_type}, learning_rate = {learning_rate}, max_iters = {max_iters}, loss_type = {loss_type}")
 
@@ -107,14 +113,16 @@ def train():
     nvocab = 64
     nrand_sel_box = 8192
     subsamp_ds = 1
-    ds_fac_here = 4
+    ds_fac_here = 1
     # ds_type_here = 'random'
     ds_type_here = 'seq'
     # rand_seed_dsfac = 0
     rand_seed_dsfac = 1
     # add_space_token = False
     # Mstar_cut = 8.5
-    Mstar_cut = 12.7
+    # Mstar_cut = 12.7
+    Mstar_cut = 13.3
+    DS_RES_POS_FAC = 4
 
     torch.cuda.empty_cache()
     device_id = rank % torch.cuda.device_count()
@@ -143,7 +151,8 @@ def train():
     torch.cuda.empty_cache()
 
 
-    savefname = f'{sdir}/SPLIT_HALO_DATA_{Ndevices}_gpus_isim_all_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_nvocab{nvocab}_spacetoken_{add_space_token}_xMvc_{Mstar_cut}.h5'
+    # savefname = f'{sdir}/SPLIT_HALO_DATA_{Ndevices}_gpus_isim_all_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_nvocab{nvocab}_spacetoken_{add_space_token}_xMvc_{Mstar_cut}.h5'
+    savefname = f'{sdir}/SPLIT_HALO_DATA_{Ndevices}_gpus_isim_all_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_grid_{nvocab//DS_RES_POS_FAC}_nvocab{nvocab}_spacetoken_{add_space_token}_xMv1Dc_{Mstar_cut}.h5'
     dist.barrier()
     with h5.File(savefname, 'r') as f:
         x_train_gpu = torch.tensor(f[f'x_train_dev_{rank}'][:][ind_sel_train]).to(torch.long).to(device_id, non_blocking=True)
@@ -177,7 +186,8 @@ def train():
     # learning_rate = 3e-4
     # max_iters = 1500
     eval_iters = 8
-    n_embd = 384
+    # n_embd = 384
+    # n_embd = 192
     # n_head = 8
     # n_layer = 8
 
@@ -191,19 +201,28 @@ def train():
     print(f"block_size = {block_size}, vocab_size = {vocab_size}, pad_token = {pad_token}, max_sentence_length = {max_sentence_length}")
     print(f"nembd = {n_embd}, nhead = {n_head}, nlayer = {n_layer}, nparams = {nparams}, dropout = {dropout}")
 
+    # if grid_sbox == 32:
+    #     layers_types =  ['res', 'res', 'res', 'res']
+    # if grid_sbox == 16:
+    #     layers_types =  ['res', 'res', 'res']
+    # if grid_sbox == 8:
+    #     layers_types =  ['res','res']
     if grid_sbox == 32:
-        layers_types =  ['res', 'res', 'res', 'res']
+        layers_types =  ['res_cbam', 'res_cbam', 'res_cbam', 'res_cbam']
     if grid_sbox == 16:
-        layers_types =  ['res', 'res', 'res']
+        layers_types =  ['res_cbam', 'res_cbam', 'res_cbam']
     if grid_sbox == 8:
-        layers_types =  ['res','res']
+        layers_types =  ['res_cbam']    
     
     if cnn_type == 'res_cbam':
         dmo_cond_embed_type = 'resnet'
         layers_types =  ['res_cbam']
     elif cnn_type == 'vit':
         dmo_cond_embed_type = 'vit'
-        layers_types =  ['res','res']
+        layers_types =  ['cnn']
+    elif cnn_type == 'vit_cbam':
+        dmo_cond_embed_type = 'vit'
+        layers_types =  ['res_cbam']        
     else:
         print(f"Invalid cnn_type: {cnn_type}")
         
@@ -212,7 +231,12 @@ def train():
                     'bias': False, 'ksize': 3, 'density_grid_in': grid_size, 'density_grid_out': 4, 
                     'ninp_density': dm_train_gpu.shape[1], 'pad_token': pad_token, 'flash': True,
                     'dmo_cond_embed_type':dmo_cond_embed_type, 'layers_types':layers_types,
+                    # 'n_layers_vit': 4, 'n_heads_vit': 8}
+                    # 'n_layers_vit': n_layer, 'n_heads_vit': n_head}
+                    'patch_size':patch_size,
                     'n_layers_vit': 2, 'n_heads_vit': 8}
+                    # 'n_layers_vit': 3, 'n_heads_vit': 8}
+                    # 'n_layers_vit': 4, 'n_heads_vit': 4}
 
 
     model = HaloDecoderModel(HaloConfig).to(device_id)
@@ -224,7 +248,13 @@ def train():
     # cp_name = '/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL5_nofidfinetune_seq_TEST_model_hres_encdec_ddp_grid_8_nvocab_64_nembed_256_nhead_8_nrandsubsel_2048_subselDMOfields_all_Mstarcut_12.7_spacetoken_False_maxiter_1500_lr_0.0005.pt'
 
     # cp_name = '/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL_TEST_model_hres_encdec_ddp_grid_8_nvocab_64_nembed_256_nhead_8_nrandsubsel_2048_subselDMOfields_all_Mstarcut_12.7_spacetoken_False_maxiter_1500_lr_0.0005.pt'
-    # cp_name = '/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/iter_save/FINAL2_iter_124_seq_TEST_model_hres_encdec_ddp_grid_8_nvocab_64_nembed_256_nhead_8_nrandsubsel_2048_subselDMOfields_all_Mstarcut_12.7_spacetoken_False_maxiter_1500_lr_0.0005.pt'
+    if n_embd == 192:
+        cp_name = '/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/iter_save_wvitposembed/TEST3_LRES_MDIFF_cnn_vit_cbam_ps_1_nrandsubsel_8192_cross_entropy_iter_532_seq_grid_8_nvocab_64_nembed_192_nhead_8_nrandsubsel_8192_subselDMOfields_all_Mstarcut_13.3_maxiter_600_lr_0.0001.pt'
+        checkpoint = torch.load(cp_name, map_location=f'cuda:{device_id}')    
+        model.load_state_dict(checkpoint['model'])
+
+    # elif n_embd == 192:
+    #     cp_name = '/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/iter_save/TEST2_LRES_MDIFF_cnn_vit_nrandsubsel_8192_cross_entropy_iter_196_seq_grid_8_nvocab_64_nembed_192_nhead_8_nrandsubsel_8192_subselDMOfields_all_Mstarcut_13.3_maxiter_400_lr_0.002.pt'
 
     # checkpoint = torch.load(cp_name, map_location=f'cuda:{device_id}')    
     # model.load_state_dict(checkpoint['model'])
@@ -314,7 +344,10 @@ def train():
     best_val_loss = 1e20
     # nbatches = 64
     # batch_size = 320
-    batch_size = 1024
+    # batch_size = 1024
+    # batch_size = 4096
+    # batch_size = 2048 
+    batch_size = 4096
     # batch_size = 768
     nbatches = len(x_train_gpu) // batch_size
     print(f"nbatches = {nbatches}, total train size = {len(x_train_gpu)}")
@@ -347,8 +380,8 @@ def train():
                         # torch.save(checkpoint, f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL5_afterfinetune_{ds_type_here}_TEST_model_hres_encdec_ddp_grid_{grid_sbox}_nvocab_{nvocab}_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/(subsamp_ds * ds_fac_here))}_subselDMOfields_{subsel_type}_Mstarcut_{Mstar_cut}_spacetoken_{add_space_token}_maxiter_{max_iters}_lr_{learning_rate}.pt')                                 
                         # torch.save(checkpoint, f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL6_nofidfinetune_{ds_type_here}_TEST_model_hres_encdec_ddp_grid_{grid_sbox}_nvocab_{nvocab}_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/(subsamp_ds * ds_fac_here))}_subselDMOfields_{subsel_type}_Mstarcut_{Mstar_cut}_spacetoken_{add_space_token}_maxiter_{max_iters}_lr_{learning_rate}.pt')                                 
                         # torch.save(checkpoint, f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/iter_save/FINAL2_iter_{iter_num}_{ds_type_here}_TEST_model_hres_encdec_ddp_grid_{grid_sbox}_nvocab_{nvocab}_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/(subsamp_ds * ds_fac_here))}_subselDMOfields_{subsel_type}_Mstarcut_{Mstar_cut}_spacetoken_{add_space_token}_maxiter_{max_iters}_lr_{learning_rate}.pt')                                 
-                        torch.save(checkpoint, f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/iter_save/TESTLOSS_{loss_type}_CNNTYPE_{cnn_type}_iter_{iter_num}_{ds_type_here}_TEST_model_hres_encdec_ddp_grid_{grid_sbox}_nvocab_{nvocab}_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/(subsamp_ds * ds_fac_here))}_subselDMOfields_{subsel_type}_Mstarcut_{Mstar_cut}_spacetoken_{add_space_token}_maxiter_{max_iters}_lr_{learning_rate}.pt')                                 
-
+                        # torch.save(checkpoint, f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/iter_save/TESTLOSS_{loss_type}_CNNTYPE_{cnn_type}_iter_{iter_num}_{ds_type_here}_TEST_model_hres_encdec_ddp_grid_{grid_sbox}_nvocab_{nvocab}_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/(subsamp_ds * ds_fac_here))}_subselDMOfields_{subsel_type}_Mstarcut_{Mstar_cut}_spacetoken_{add_space_token}_maxiter_{max_iters}_lr_{learning_rate}.pt')                                 
+                        torch.save(checkpoint, f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/iter_save_wvitposembed/TEST3_LRES_MDIFF_cnn_{cnn_type}_ps_{patch_size}_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_{loss_type}_iter_{iter_num}_{ds_type_here}_grid_{grid_sbox}_nvocab_{nvocab}_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/(subsamp_ds * ds_fac_here))}_subselDMOfields_{subsel_type}_Mstarcut_{Mstar_cut}_maxiter_{max_iters}_lr_{learning_rate}.pt')                                 
 
         for ji in (range(nbatches)):
             model.require_backward_grad_sync = (ji == nbatches - 1)

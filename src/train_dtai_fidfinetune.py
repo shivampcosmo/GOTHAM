@@ -27,55 +27,21 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from multiprocessing import Pool
 import ast
 
-import argparse
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='Training script with key-value arguments')
-    
-    # Define arguments with their default values and types
-    parser.add_argument('--grid_sbox', type=int, default=8, 
-                        help='Grid size parameter')
-    parser.add_argument('--add_space_token', type=lambda x: x.lower() == 'true', 
-                        default=False, help='Whether to add space token')
-    parser.add_argument('--subsel_type', type=str, default='all',
-                        help='Subset selection type')
-    parser.add_argument('--learning_rate', type=float, default=5e-4,
-                        help='Learning rate')
-    parser.add_argument('--max_iters', type=int, default=250,
-                        help='Maximum iterations')
-    parser.add_argument('--loss_type', type=str, default='EMD',
-                        help='Maximum iterations')    
-    parser.add_argument('--cnn_type', type=str, default='res_cbam',
-                        help='Maximum iterations')                            
-    args = parser.parse_args()
-    return args
+try:
+    grid_sbox = int(ast.literal_eval(sys.argv[-5]))
+    add_space_token = bool(ast.literal_eval(sys.argv[-4]))
+    subsel_type = sys.argv[-3]
+    learning_rate = float(ast.literal_eval(sys.argv[-2]))
+    max_iters = int(ast.literal_eval(sys.argv[-1]))
+except:
+    grid_sbox = 8
+    add_space_token = False
+    subsel_type = 'all'    
+    learning_rate = 5e-4
+    max_iters = 250
 
-if __name__ == "__main__":
-    args = parse_args()
-    grid_sbox = args.grid_sbox
-    add_space_token = args.add_space_token
-    subsel_type = args.subsel_type
-    learning_rate = args.learning_rate
-    max_iters = args.max_iters
-    loss_type = args.loss_type
-    cnn_type = args.cnn_type
-    print(f"grid_sbox = {grid_sbox}, add_space_token = {add_space_token}, subsel_type = {subsel_type}, learning_rate = {learning_rate}, max_iters = {max_iters}, loss_type = {loss_type}, cnn_type = {cnn_type}")
-    # print(f"grid_sbox = {grid_sbox}, add_space_token = {add_space_token}, subsel_type = {subsel_type}, learning_rate = {learning_rate}, max_iters = {max_iters}, loss_type = {loss_type}")
-
-# try:
-#     grid_sbox = int(ast.literal_eval(sys.argv[-5]))
-#     add_space_token = bool(ast.literal_eval(sys.argv[-4]))
-#     subsel_type = sys.argv[-3]
-#     learning_rate = float(ast.literal_eval(sys.argv[-2]))
-#     max_iters = int(ast.literal_eval(sys.argv[-1]))
-# except:
-#     grid_sbox = 8
-#     add_space_token = False
-#     subsel_type = 'all'    
-#     learning_rate = 5e-4
-#     max_iters = 250
-
-# print(learning_rate, max_iters)
+print(learning_rate, max_iters)
 
 def setup(rank, world_size):
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
@@ -98,63 +64,42 @@ def train():
     rank = dist.get_rank()
     print(f"Start running basic DDP example on rank {rank}.")
     # Ndevices = torch.cuda.device_count()
-    Ndevices = 16
-    # Ndevices = 2
+    Ndevices = 8
 
     BoxSize = 1000.
     grid = 32
     # grid_sbox = 32
     nvocab = 64
-    nrand_sel_box = 8192
+    nrand_sel_box = 32768
     subsamp_ds = 1
     ds_fac_here = 4
-    # ds_type_here = 'random'
-    ds_type_here = 'seq'
-    # rand_seed_dsfac = 0
-    rand_seed_dsfac = 1
     # add_space_token = False
     # Mstar_cut = 8.5
     Mstar_cut = 12.7
 
-    torch.cuda.empty_cache()
     device_id = rank % torch.cuda.device_count()
     sdir = '/work/hdd/bdne/spandey3/quijote_data/halo_gotham_data/process_split'
-    savefname = f'{sdir}/SPLIT_DMO_DATA_{Ndevices}_gpus_density3Dgrid_{grid_sbox}_isim_all_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}.h5'
+    savefname = f'{sdir}/SPLIT_DMO_DATA_fidcosmo_{Ndevices}_gpus_density3Dgrid_{grid_sbox}_isim_all_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}.h5'
     dist.barrier()
     with h5.File(savefname, 'r') as f:
-        ind_all_train = np.arange(f[f'dm_train_dev_{rank}'][:].shape[0])
-        ind_all_val = np.arange(f[f'dm_val_dev_{rank}'][:].shape[0])
-        if ds_type_here == 'random':
-            np.random.seed(rand_seed_dsfac)
-            ind_all_train = np.random.permutation(ind_all_train)
-            ind_all_val = np.random.permutation(ind_all_val)
-            ind_sel_train = ind_all_train[::ds_fac_here]
-            ind_sel_val = ind_all_val[::ds_fac_here]
-        else:
-            ind_sel_train = ind_all_train[rand_seed_dsfac::ds_fac_here]
-            ind_sel_val = ind_all_val[rand_seed_dsfac::ds_fac_here]
-
-        print(f"ind_sel_train = {ind_sel_train.shape}, ind_sel_val = {ind_sel_val.shape}", flush=True)
-        dm_train_gpu = torch.tensor(f[f'dm_train_dev_{rank}'][:][ind_sel_train]).to(ptdtype).to(device_id, non_blocking=True)
-        dm_val_gpu = torch.tensor(f[f'dm_val_dev_{rank}'][:][ind_sel_val]).to(ptdtype).to(device_id, non_blocking=True)
+        dm_train_gpu = torch.tensor(f[f'dm_train_dev_{rank}'][:][::ds_fac_here]).to(ptdtype).to(device_id, non_blocking=True)
+        dm_val_gpu = torch.tensor(f[f'dm_val_dev_{rank}'][:][::ds_fac_here]).to(ptdtype).to(device_id, non_blocking=True)
         grid_size = int(f['grid'][()])
     f.close()
     dist.barrier()
-    torch.cuda.empty_cache()
 
-
-    savefname = f'{sdir}/SPLIT_HALO_DATA_{Ndevices}_gpus_isim_all_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_nvocab{nvocab}_spacetoken_{add_space_token}_xMvc_{Mstar_cut}.h5'
+    savefname = f'{sdir}/SPLIT_HALO_DATA_fidcosmo_{Ndevices}_gpus_isim_all_nrandsubsel_{int(nrand_sel_box/subsamp_ds)}_nvocab{nvocab}_spacetoken_{add_space_token}_xMvc_{Mstar_cut}.h5'
     dist.barrier()
     with h5.File(savefname, 'r') as f:
-        x_train_gpu = torch.tensor(f[f'x_train_dev_{rank}'][:][ind_sel_train]).to(torch.long).to(device_id, non_blocking=True)
-        y_train_gpu = torch.tensor(f[f'y_train_dev_{rank}'][:][ind_sel_train]).to(torch.long).to(device_id, non_blocking=True)
-        mask_train_gpu = torch.tensor(f[f'mask_train_dev_{rank}'][:][ind_sel_train]).to(ptdtype).to(device_id, non_blocking=True)
-        params_train_gpu = torch.tensor(f[f'params_train_dev_{rank}'][:][ind_sel_train]).to(ptdtype).to(device_id, non_blocking=True)
+        x_train_gpu = torch.tensor(f[f'x_train_dev_{rank}'][:][::ds_fac_here]).to(torch.long).to(device_id, non_blocking=True)
+        y_train_gpu = torch.tensor(f[f'y_train_dev_{rank}'][:][::ds_fac_here]).to(torch.long).to(device_id, non_blocking=True)
+        mask_train_gpu = torch.tensor(f[f'mask_train_dev_{rank}'][:][::ds_fac_here]).to(ptdtype).to(device_id, non_blocking=True)
+        params_train_gpu = torch.tensor(f[f'params_train_dev_{rank}'][:][::ds_fac_here]).to(ptdtype).to(device_id, non_blocking=True)
 
-        x_val_gpu = torch.tensor(f[f'x_val_dev_{rank}'][:][ind_sel_val]).to(torch.long).to(device_id, non_blocking=True)
-        y_val_gpu = torch.tensor(f[f'y_val_dev_{rank}'][:][ind_sel_val]).to(torch.long).to(device_id, non_blocking=True)
-        mask_val_gpu = torch.tensor(f[f'mask_val_dev_{rank}'][:][ind_sel_val]).to(ptdtype).to(device_id, non_blocking=True)
-        params_val_gpu = torch.tensor(f[f'params_val_dev_{rank}'][:][ind_sel_val]).to(ptdtype).to(device_id, non_blocking=True)
+        x_val_gpu = torch.tensor(f[f'x_val_dev_{rank}'][:][::ds_fac_here]).to(torch.long).to(device_id, non_blocking=True)
+        y_val_gpu = torch.tensor(f[f'y_val_dev_{rank}'][:][::ds_fac_here]).to(torch.long).to(device_id, non_blocking=True)
+        mask_val_gpu = torch.tensor(f[f'mask_val_dev_{rank}'][:][::ds_fac_here]).to(ptdtype).to(device_id, non_blocking=True)
+        params_val_gpu = torch.tensor(f[f'params_val_dev_{rank}'][:][::ds_fac_here]).to(ptdtype).to(device_id, non_blocking=True)
 
         nvocab_total = f['nvocab_total'][()]
         start_token = f['start_token'][()]
@@ -163,8 +108,24 @@ def train():
         max_sentence_length = f['max_sentence_length'][()]  
     f.close()
     dist.barrier()
-    torch.cuda.empty_cache()
-
+    
+    # if subsel_type == 'no_highz':
+    #     indices = torch.arange(6)
+    # elif subsel_type == 'no_highz_nsnap_2':
+    #     indices = torch.arange(12)        
+    # elif subsel_type == 'no_highz_nsnap_3':
+    #     indices = torch.arange(18)                
+    # elif subsel_type == 'no_highz_no_vel':
+    #     indices = torch.arange(3)
+    # elif subsel_type == 'no_highz_no_env':
+    #     indices = torch.from_numpy(np.array([0,3,4,5]))
+    # elif subsel_type == 'no_vel':
+    #     indices = torch.cat([torch.arange(i, i + 3) for i in range(0, 30, 6)])
+    # elif subsel_type == 'no_env':        
+    #     indices1 = torch.cat([torch.arange(i+3, i + 6) for i in range(0, 30, 6)])
+    #     indices2 = torch.cat([torch.arange(i, i + 1) for i in range(0, 30, 6)])
+    #     indices, _ = torch.sort(torch.cat([indices1, indices2]))
+    # else:
     indices = torch.arange(dm_train_gpu.shape[1])
 
     dm_train_gpu = dm_train_gpu[:,indices,...]
@@ -177,7 +138,7 @@ def train():
     # learning_rate = 3e-4
     # max_iters = 1500
     eval_iters = 8
-    n_embd = 384
+    n_embd = 256
     # n_head = 8
     # n_layer = 8
 
@@ -197,21 +158,13 @@ def train():
         layers_types =  ['res', 'res', 'res']
     if grid_sbox == 8:
         layers_types =  ['res','res']
-    
-    if cnn_type == 'res_cbam':
-        dmo_cond_embed_type = 'resnet'
-        layers_types =  ['res_cbam']
-    elif cnn_type == 'vit':
-        dmo_cond_embed_type = 'vit'
-        layers_types =  ['res','res']
-    else:
-        print(f"Invalid cnn_type: {cnn_type}")
+        
         
     HaloConfig = {'block_size': block_size, 'vocab_size': vocab_size, 'n_layer': n_layer, 
                     'n_head': n_head, 'n_embd': n_embd, 'nparams': nparams, 'dropout': dropout, 
-                    'bias': False, 'ksize': 3, 'density_grid_in': grid_size, 'density_grid_out': 4, 
+                    'bias': True, 'ksize': 3, 'density_grid_in': grid_size, 'density_grid_out': 4, 
                     'ninp_density': dm_train_gpu.shape[1], 'pad_token': pad_token, 'flash': True,
-                    'dmo_cond_embed_type':dmo_cond_embed_type, 'layers_types':layers_types,
+                    'dmo_cond_embed_type':'vit', 'layers_types':layers_types,
                     'n_layers_vit': 2, 'n_heads_vit': 8}
 
 
@@ -219,15 +172,10 @@ def train():
 
     # load the model checkpoint:
     
-    # cp_name = f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL4_fidfinetune_TEST_model_hres_encdec_ddp_grid_8_nvocab_64_nembed_256_nhead_8_nrandsubsel_8192_subselDMOfields_all_Mstarcut_12.7_spacetoken_False_maxiter_1500_lr_0.0005.pt'
-    # cp_name = '/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL3_TEST_model_hres_encdec_ddp_grid_8_nvocab_64_nembed_256_nhead_8_nrandsubsel_2048_subselDMOfields_all_Mstarcut_12.7_spacetoken_False_maxiter_1500_lr_0.0005.pt'
-    # cp_name = '/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL5_nofidfinetune_seq_TEST_model_hres_encdec_ddp_grid_8_nvocab_64_nembed_256_nhead_8_nrandsubsel_2048_subselDMOfields_all_Mstarcut_12.7_spacetoken_False_maxiter_1500_lr_0.0005.pt'
+    cp_name = f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL3_TEST_model_hres_encdec_ddp_grid_8_nvocab_64_nembed_256_nhead_8_nrandsubsel_2048_subselDMOfields_all_Mstarcut_12.7_spacetoken_False_maxiter_1500_lr_0.0005.pt'
+    checkpoint = torch.load(cp_name, map_location=f'cuda:{device_id}')    
+    model.load_state_dict(checkpoint['model'])
 
-    # cp_name = '/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL_TEST_model_hres_encdec_ddp_grid_8_nvocab_64_nembed_256_nhead_8_nrandsubsel_2048_subselDMOfields_all_Mstarcut_12.7_spacetoken_False_maxiter_1500_lr_0.0005.pt'
-    # cp_name = '/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/iter_save/FINAL2_iter_124_seq_TEST_model_hres_encdec_ddp_grid_8_nvocab_64_nembed_256_nhead_8_nrandsubsel_2048_subselDMOfields_all_Mstarcut_12.7_spacetoken_False_maxiter_1500_lr_0.0005.pt'
-
-    # checkpoint = torch.load(cp_name, map_location=f'cuda:{device_id}')    
-    # model.load_state_dict(checkpoint['model'])
 
     if rank == 0: print(f"Init model and loaded to GPU", flush=True)            
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
@@ -314,8 +262,7 @@ def train():
     best_val_loss = 1e20
     # nbatches = 64
     # batch_size = 320
-    batch_size = 1024
-    # batch_size = 768
+    batch_size = 1200
     nbatches = len(x_train_gpu) // batch_size
     print(f"nbatches = {nbatches}, total train size = {len(x_train_gpu)}")
     
@@ -344,10 +291,7 @@ def train():
                             'lr': lr
                         }
                         print(f"saving checkpoint")
-                        # torch.save(checkpoint, f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL5_afterfinetune_{ds_type_here}_TEST_model_hres_encdec_ddp_grid_{grid_sbox}_nvocab_{nvocab}_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/(subsamp_ds * ds_fac_here))}_subselDMOfields_{subsel_type}_Mstarcut_{Mstar_cut}_spacetoken_{add_space_token}_maxiter_{max_iters}_lr_{learning_rate}.pt')                                 
-                        # torch.save(checkpoint, f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL6_nofidfinetune_{ds_type_here}_TEST_model_hres_encdec_ddp_grid_{grid_sbox}_nvocab_{nvocab}_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/(subsamp_ds * ds_fac_here))}_subselDMOfields_{subsel_type}_Mstarcut_{Mstar_cut}_spacetoken_{add_space_token}_maxiter_{max_iters}_lr_{learning_rate}.pt')                                 
-                        # torch.save(checkpoint, f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/iter_save/FINAL2_iter_{iter_num}_{ds_type_here}_TEST_model_hres_encdec_ddp_grid_{grid_sbox}_nvocab_{nvocab}_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/(subsamp_ds * ds_fac_here))}_subselDMOfields_{subsel_type}_Mstarcut_{Mstar_cut}_spacetoken_{add_space_token}_maxiter_{max_iters}_lr_{learning_rate}.pt')                                 
-                        torch.save(checkpoint, f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/iter_save/TESTLOSS_{loss_type}_CNNTYPE_{cnn_type}_iter_{iter_num}_{ds_type_here}_TEST_model_hres_encdec_ddp_grid_{grid_sbox}_nvocab_{nvocab}_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/(subsamp_ds * ds_fac_here))}_subselDMOfields_{subsel_type}_Mstarcut_{Mstar_cut}_spacetoken_{add_space_token}_maxiter_{max_iters}_lr_{learning_rate}.pt')                                 
+                        torch.save(checkpoint, f'/projects/bdne/spandey3/halo_gotham/GOTHAM/model_checkpoints/quijote_halos/FINAL4_fidfinetune_TEST_model_hres_encdec_ddp_grid_{grid_sbox}_nvocab_{nvocab}_nembed_{n_embd}_nhead_{n_head}_nrandsubsel_{int(nrand_sel_box/(subsamp_ds * ds_fac_here))}_subselDMOfields_{subsel_type}_Mstarcut_{Mstar_cut}_spacetoken_{add_space_token}_maxiter_{max_iters}_lr_{learning_rate}.pt')                                 
 
 
         for ji in (range(nbatches)):
@@ -355,14 +299,14 @@ def train():
 
             X, Y, MASK, DM, PARAMS = get_batch('train', ji, batch_size)
             with ctx:
-                _, loss = model(X, DM, params=PARAMS, maskd=MASK, targets=Y, loss_type=loss_type)
+                _, loss = model(X, DM, params=PARAMS, maskd=MASK, targets=Y)
             scaler.scale(loss).backward()   
             torch.cuda.empty_cache() 
 
         scaler.step(optimizer)
         scaler.update()
         optimizer.zero_grad(set_to_none=True)
-        torch.cuda.empty_cache()
+
         iter_num += 1
         local_iter_num += 1
 
