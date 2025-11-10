@@ -6,6 +6,9 @@ slurm_logs/
 __pycache__/
 *.py[cod]
 *$py.class
+wandb/
+*.txt
+
 
 *.pkl
 *.dill
