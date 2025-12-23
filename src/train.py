@@ -63,8 +63,8 @@ class PairedDataset(Dataset):
         total_x = nx * len(x_files)
         total_y = ny * len(y_files)
 
-        self.xdata = torch.empty((total_x, x_seq), dtype=torch.long).share_memory_()
-        self.ydata = torch.empty((total_y, *y_rest_shape), dtype=torch.float).share_memory_()
+        self.xdata = torch.empty((total_x, x_seq), dtype=torch.long)
+        self.ydata = torch.empty((total_y, *y_rest_shape), dtype=torch.float)
 
         x_start = 0
         y_start = 0
