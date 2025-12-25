@@ -1,23 +1,32 @@
 import numpy as np
-from mpi4py import MPI
-import os
+# from mpi4py import MPI
+import sys, os
 
 ###### MPI DEFINITIONS ######
-comm   = MPI.COMM_WORLD
-nprocs = comm.Get_size()
-myrank = comm.Get_rank()
+# comm   = MPI.COMM_WORLD
+# nprocs = comm.Get_size()
+# myrank = comm.Get_rank()
 
-points = 1000
+# points = 2000
+imin = int(sys.argv[1])
+imax = int(sys.argv[2])
+points = np.arange(imin, imax)
 
-numbers = np.where(np.arange(points)%nprocs==myrank)[0]
 
-for sim_id in numbers:
+# numbers = np.where(points%nprocs==myrank)[0]
+
+for sim_id in points:
     #nfiles = 8
-    nfiles = 1
+    nfiles = 64
+    path = f'/mnt/ceph/users/spandey/discodj_runs/LH/{sim_id}/ICs/'    
+    savefname = path+'IC_delta640.npy'
+
+    # check if the file already exists
+    if os.path.exists(savefname):
+        continue
+
     try:
-        #path = f'/work/hdd/bdne/yzhang116/ICsSAM/cLH{sim_id:d}/ICs/'
-        #path = f'/work/hdd/bdne/yzhang116/CV/CV_{sim_id:d}/ICs/'
-        path = f'/work/hdd/bdne/yzhang116/quijote/LH_%d/ICs/'%sim_id
+        
         idx = []
         amp, phase = [], []
         print("\nConvert for path: ", path)
@@ -49,7 +58,8 @@ for sim_id in numbers:
             Nmesh  = np.fromfile(f, dtype=np.int32, count=1)[0] #Nmesh size
             Nx     = np.fromfile(f, dtype=np.int32, count=1)[0] #slab offset (not used)
             phase.append(np.fromfile(f, dtype=np.float32, count=-1))
-    except:
+    except Exception as e:
+        print("Error in reading files for sim_id: ", sim_id)
         pass
 
     idx = np.concatenate(idx)
@@ -59,10 +69,10 @@ for sim_id in numbers:
     val = amp*np.exp(1j*phase)
     cmesh = val.reshape(Nmesh, Nmesh, kz.max()+1)
 
-    bs=100     #Mpc/h
+    bs=1000     #Mpc/h
     mesh = np.fft.irfftn(cmesh, norm='ortho') * Nmesh**1.5
     #np.save(path+'IC_delta128_cLH%d.npy'%sim_id, mesh.astype(np.float32))
-    np.save(path+'IC_delta640.npy', mesh.astype(np.float32))
+    np.save(savefname, mesh.astype(np.float32))
 
 
     for i in range(nfiles):
