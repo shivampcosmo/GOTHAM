@@ -19,7 +19,8 @@ for sim_id in points:
     #nfiles = 8
     nfiles = 64
     path = f'/mnt/ceph/users/spandey/discodj_runs/LH/{sim_id}/ICs/'    
-    savefname = path+'IC_delta640.npy'
+    # savefname = path+'IC_delta640.npy'
+    savefname = path+'IC_delta512.npy'
 
     # check if the file already exists
     if os.path.exists(savefname):

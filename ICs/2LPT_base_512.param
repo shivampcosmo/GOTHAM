@@ -1,10 +1,10 @@
-    Nmesh            640      
-    Nsample          640       
+    Nmesh            512      
+    Nsample          512       
     Box              1000000.0   
     FileBase         ics         
     OutputDir        ./          
     GlassFile        /mnt/ceph/users/spandey/fastpm/paco_2lpt/GLASS/dummy_glass_dmonly_64.dat
-    GlassTileFac     10         
+    GlassTileFac     8         
     Omega            0.1755    
     OmegaLambda      0.8245    
     OmegaBaryon      0.0000    

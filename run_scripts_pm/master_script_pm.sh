@@ -41,11 +41,12 @@ for (( JDEVICE=0; JDEVICE<TOTAL_DEVICES; JDEVICE++ )); do
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=16
 #SBATCH -C h100
 #SBATCH -p gpu
 #SBATCH --gpus-per-node=1
-#SBATCH --mem=256G
-#SBATCH --time=2:30:00
+#SBATCH --mem=128G
+#SBATCH --time=4:00:00
 #SBATCH --job-name=${JOB_NAME}
 #SBATCH --output=${LOG_DIR}/%x.%j.out
 #SBATCH --error=${LOG_DIR}/%x.%j.err
@@ -67,9 +68,9 @@ source ~/miniconda3/bin/activate discodj
 for i in {${I_START}..$((I_END - 1))};
 do
     echo \$i;
-    cd "/mnt/ceph/users/spandey/quijote_v2_gotham/GOTHAM/ICs";
+    cd "/mnt/ceph/users/spandey/quijote_v2_gotham/GOTHAM/prepare";
     echo "\$PWD";
-    time srun python /mnt/ceph/users/spandey/quijote_v2_gotham/GOTHAM/ICs/pm.py \$i;
+    time srun python /mnt/ceph/users/spandey/quijote_v2_gotham/GOTHAM/prepare/pm.py \$i;
     echo "done";
 done
 
