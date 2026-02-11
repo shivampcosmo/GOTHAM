@@ -87,7 +87,7 @@ def get_prop_pos(X_val):
                         if Nhalos_here > 0:
                             for jh in range(int(Nhalos_here)):
                                 try:
-                                    prop_all = np.zeros(dim_prop)        
+                                    prop_all = np.zeros(dim_prop, dtype=np.float32)        
                                     for jp in range(dim_prop):
                                         bin_val_jp = sentence_here[ind_start_token + jh*ntokens_per_halo + 4 + jp]
                                         prop_all[jp] = (bins_digitize[jp, bin_val_jp] +np.random.uniform(-0.5,0.5) * bins_step[jp]).clip(min=bins_digitize[jp,0], max=bins_digitize[jp,-1])
