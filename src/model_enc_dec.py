@@ -9,7 +9,8 @@ from torch.nn import functional as F
 from dataclasses import dataclass
 import math
 from resnet import *
-from vit_wpos_embed_v3 import *
+from cbam_v2 import *
+from vit_wpos_embed_v2 import *
 from torch.utils.checkpoint import checkpoint
 import torch.nn.init as init
 
@@ -287,7 +288,7 @@ class Block(nn.Module):
         self.ln_3 = RMSNorm(config.n_embd)
         self.mlp = MLP(config.n_embd, config.dropout)
 
-    def forward(self, x, xe=None, maskd=None, maske=None, return_kv=False, use_kv_cache=False, k_cache=None, v_cache=None, cross_k_cache=None, cross_v_cache=None, cache_pos=None):
+    def forward(self, x, xe=None, maskd=None, maske=None, return_kv=False, use_kv_cache=False, k_cache=None, v_cache=None):
         if use_kv_cache and k_cache is not None and v_cache is not None:
             batch_size = x.size(0)
             x_new = self.ln_1(x)
@@ -298,18 +299,10 @@ class Block(nn.Module):
             # Update k,v with the new token
             k_new = self.selfattn.k_attn(x_new).view(batch_size, -1, self.selfattn.n_head, head_size).transpose(1, 2) #[batch, n_head, seq_len_new, head_dim]
             v_new = self.selfattn.v_attn(x_new).view(batch_size, -1, self.selfattn.n_head, head_size).transpose(1, 2)
-
-            seq_len_new = k_new.size(2)
-            if cache_pos is not None:
-                # Static KV cache: write in-place (avoids O(n^2) torch.cat allocations)
-                k_cache[:, :, cache_pos:cache_pos+seq_len_new, :] = k_new
-                v_cache[:, :, cache_pos:cache_pos+seq_len_new, :] = v_new
-                k_updated = k_cache[:, :, :cache_pos+seq_len_new, :]
-                v_updated = v_cache[:, :, :cache_pos+seq_len_new, :]
-            else:
-                # Dynamic KV cache (fallback for backward compatibility)
-                k_updated = torch.cat([k_cache, k_new], dim=2)
-                v_updated = torch.cat([v_cache, v_new], dim=2)
+            
+            # Concatenate new k,v with cached k,v
+            k_updated = torch.cat([k_cache, k_new], dim=2)
+            v_updated = torch.cat([v_cache, v_new], dim=2)
             
             # Calculate attention
             attn_output = self.selfattn(x_new,
@@ -319,18 +312,9 @@ class Block(nn.Module):
             )
             
             x = x + attn_output
-            # When using static cache, return full buffer (already updated in-place)
-            # When using dynamic cache, return the concatenated result
-            k_self = k_cache if cache_pos is not None else k_updated
-            v_self = v_cache if cache_pos is not None else v_updated
+            k_self, v_self = k_updated, v_updated  # Update cache
             if xe is not None:
-                if cross_k_cache is not None and cross_v_cache is not None:
-                    # Use pre-computed cross-attention K,V (avoids recomputing from xe every step)
-                    x_ln2 = self.ln_2(x)
-                    q_cross = self.crossattn.q_attn(x_ln2).view(batch_size, -1, self.crossattn.n_head, head_size).transpose(1, 2)
-                    x_cross = self.crossattn(x_ln2, use_cache=True, q=q_cross, k=cross_k_cache, v=cross_v_cache, batch_size=batch_size)
-                else:
-                    x_cross = self.crossattn(self.ln_2(x), xe=xe, maskd=maskd, maske=maske)
+                x_cross = self.crossattn(self.ln_2(x), xe=xe, maskd=maskd, maske=maske)
                 x = x + x_cross
             
             # MLP
@@ -460,7 +444,7 @@ class HaloDecoderModel(nn.Module):
                         config.density_grid_out,
                         config.ninp_density,
                         config.n_embd, # - config.nparams,
-                        layers_types=config.layers_types,
+                        layers_types=config.layers_types
                                     )        
         elif dmo_cond_embed_type == 'vit':
             self.cnn3D = Vision3DTransformer(
@@ -471,8 +455,7 @@ class HaloDecoderModel(nn.Module):
                 num_heads=config.n_heads_vit,
                 dropout=config.dropout,
                 cross_attn_dim=config.n_embd, # - config.nparams,
-                layers_types=config.layers_types,
-                cosmo_bins=config.vocab_size,
+                layers_types=config.layers_types
             )
         
         if config.loss_type == 'SumGauss':
@@ -497,7 +480,7 @@ class HaloDecoderModel(nn.Module):
             # wpe = nn.Embedding(config.block_size, config.n_embd),
             whe = nn.Embedding(config.max_nhalo, config.n_embd),
             wprope = nn.Embedding(config.nprops, config.n_embd),
-            wce = nn.Embedding(6, config.n_embd),
+            wce = nn.Embedding(3, config.n_embd),
             drop = nn.Dropout(config.dropout),
             h = nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
             ln_f = LayerNorm(config.n_embd, bias=config.bias),
@@ -547,7 +530,7 @@ class HaloDecoderModel(nn.Module):
         b, t = idx.size()   # b: batch size, t: token length
         assert t <= self.config.block_size, f"Cannot forward sequence of length {t}, block size is only {self.config.block_size}"
         
-        xe = self.cnn3D(density_all, idx[:,1:6]) # (b, N_patches, cross_attn_dim or embed_dim)
+        xe = self.cnn3D(density_all) # (b, N_patches, cross_attn_dim or embed_dim)
         #print("xe: ", xe[0:3,:2,-10:], flush=True)
 
         #params_to_concat = params[:, None, :].expand(-1, xe.shape[1], -1)
@@ -560,37 +543,35 @@ class HaloDecoderModel(nn.Module):
         tok_emb = self.transformer.wte(idx.long()) # token embeddings of shape (b, t, n_embd)
 
         end_token_index = (targets == self.config.end_token).nonzero(as_tuple=True)[1] + 1 #(b,)
-        n_halo_actual = (end_token_index - 7) // self.config.nprops  # shape: (b,)
+        n_halo_actual = (end_token_index - 4) // self.config.nprops  # shape: (b,)
         halo_ids_full = torch.arange(self.config.max_nhalo, device=device).repeat_interleave(self.config.nprops)
         prop_ids_full = torch.arange(self.config.max_nhalo * self.config.nprops, device=device) % self.config.nprops
         haloid_emb_full = self.transformer.whe(halo_ids_full.long())   # (max_nhalo*nprops, n_embd)
         prop_emb_full   = self.transformer.wprope(prop_ids_full.long()) # (max_nhalo*nprops, n_embd)
         halo_mask = torch.arange(self.config.max_nhalo, device=device).repeat_interleave(self.config.nprops).unsqueeze(0)  # (1, max_nhalo*nprops)
         halo_mask = halo_mask < n_halo_actual.unsqueeze(1)  
-        halo_end_max = 7 + self.config.max_nhalo * self.config.nprops
-        tok_emb[:,7:halo_end_max,:] += (haloid_emb_full.unsqueeze(0).expand(b,-1,-1)+prop_emb_full.unsqueeze(0).expand(b,-1,-1)) * halo_mask.unsqueeze(2)
-        cosmo_emb = self.transformer.wce(torch.arange(0,6, dtype=torch.long, device=device))  # (6, n_embd)
-        tok_emb[:,1:7,:] += cosmo_emb.unsqueeze(0).expand(b,-1,-1)
+        halo_end_max = 4 + self.config.max_nhalo * self.config.nprops
+        tok_emb[:,4:halo_end_max,:] += (haloid_emb_full.unsqueeze(0).expand(b,-1,-1)+prop_emb_full.unsqueeze(0).expand(b,-1,-1)) * halo_mask.unsqueeze(2)
+        cosmo_emb = self.transformer.wce(torch.arange(0,3, dtype=torch.long, device=device))  # (2, n_embd)
+        tok_emb[:,1:4,:] += cosmo_emb.unsqueeze(0).expand(b,-1,-1)
 
         x = self.transformer.drop(tok_emb)
         for block in self.transformer.h:
             x = block(x, xe=xe, maskd=maskd)    # x: galaxy tokens, xe: features of density field
         x = self.transformer.ln_f(x)  # (512, 129, 64)
         if targets is not None:
-            #loss_array = torch.zeros(5, device=device)
-            #edges = [0,10,20,40,80,290]
+            loss_array = torch.zeros(5, device=device)
+            edges = [0,10,20,40,80,290]
             # if we are given some desired targets also calculate the loss
             if self.config.loss_type == 'cross_entropy':
                 logits = self.lm_head(x) # from n_embd to vocab_size
                 logits = torch.nan_to_num(logits, nan=-1e2, posinf=-1e2, neginf=-1e2)
                 logits = torch.clamp(logits, min=-1e2, max=1e2)  # clamp logits to avoid NaNs
-                '''
                 if self.training == True:
                     for i in range(5):
                         loss_array[i]=F.cross_entropy(logits[:, edges[i]:edges[i+1], :].reshape(-1, logits.size(-1)),
                                                     targets[:, edges[i]:edges[i+1]].reshape(-1),
                                                     ignore_index=self.config.pad_token)
-                '''    
                 loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)),targets.reshape(-1),ignore_index=self.config.pad_token)
             elif self.config.loss_type == 'SumGauss':
                 loss = self.sum_gauss_model(targets.reshape(-1),cond_inp=x.reshape(-1, x.size(-1)))
@@ -605,7 +586,7 @@ class HaloDecoderModel(nn.Module):
             #logits = self.lm_head(x[:, [-1], :]) # note: using list [-1] to preserve the time dim
             loss = None
 
-        return loss
+        return loss, loss_array
 
     def generate(self, density_all, params=None, max_new_tokens=100, temperature=1.0, top_k=None, start_token=1, end_token=None, pad_token=None):
         """
@@ -630,77 +611,48 @@ class HaloDecoderModel(nn.Module):
         # Use end_token and pad_token from config if not provided
         end_token = end_token if end_token is not None else getattr(self.config, 'end_token', None)
         pad_token = pad_token if pad_token is not None else getattr(self.config, 'pad_token', None)
-        Om_min, Om_max = 0.1, 0.5
-        Ob_min, Ob_max = 0.03, 0.07
-        h0_min, h0_max = 0.5, 0.9
-        ns_min, ns_max = 0.8, 1.2
-        sigma8_min, sigma8_max = 0.6, 1.0
-        nbin = 131
+        Om_min = 0.1
+        Om_max = 0.5
+        sigma8_min = 0.6
+        sigma8_max = 1.0
+        nbin = 64
         Om = params[:,0]
-        Ob = params[:,1]
-        h0 = params[:,2]
-        ns = params[:,3]
-        sigma8 = params[:,4]
-        Om_token = torch.round((Om - Om_min) / (Om_max - Om_min) * nbin).clamp(0, nbin).long()
-        Ob_token = torch.round((Ob - Ob_min)/(Ob_max - Ob_min) * nbin).clamp(0, nbin).long()
-        h0_token = torch.round((h0 - h0_min)/(h0_max - h0_min) * nbin).clamp(0, nbin).long()
-        ns_token = torch.round((ns - ns_min)/(ns_max - ns_min) * nbin).clamp(0, nbin).long()
-        sigma8_token = torch.round((sigma8 - sigma8_min)/(sigma8_max - sigma8_min) * nbin).clamp(0, nbin).long()
+        sigma8 = params[:,1]
+        Om_token = ((Om - Om_min) / (Om_max - Om_min) * nbin).clamp(0, nbin).long()
+        sigma8_token = ((sigma8 - sigma8_min)/(sigma8_max - sigma8_min) * nbin).clamp(0, nbin).long()
+        xe = self.cnn3D(density_all)
         # Expand params and concat with CNN embeddings
         #params_to_concat = params[:, None, :].expand(-1, xe.shape[1], -1)
         #xe = torch.cat((xe, params_to_concat), dim=-1)
         
         # Start with just the start token
-        idx = torch.ones((batch_size, 6), dtype=torch.long, device=device) * start_token
+        idx = torch.ones((batch_size, 3), dtype=torch.long, device=device) * start_token
         idx[:,1] = Om_token  # set second token to Om token
         idx[:,2] = sigma8_token
-        idx[:,3] = Ob_token
-        idx[:,4] = h0_token
-        idx[:,5] = ns_token
 
-        xe = self.cnn3D(density_all, idx[:,1:6])
-
-        # Pre-compute cross-attention K,V (constant across all decode steps)
-        cross_k_cache = []
-        cross_v_cache = []
-        for block in self.transformer.h:
-            head_size_cross = block.crossattn.n_embd_q // block.crossattn.n_head
-            k_cross = block.crossattn.k_attn(xe).view(batch_size, -1, block.crossattn.n_head, head_size_cross).transpose(1, 2)
-            v_cross = block.crossattn.v_attn(xe).view(batch_size, -1, block.crossattn.n_head, head_size_cross).transpose(1, 2)
-            cross_k_cache.append(k_cross)
-            cross_v_cache.append(v_cross)
-
-        # Initialize static KV cache (pre-allocated to avoid O(n^2) torch.cat)
+        # Initialize KV cache
         n_layer, n_head = self.config.n_layer, self.config.n_head
         head_size = self.config.n_embd // n_head
-        max_cache_len = 8 + max_new_tokens  # prefix tokens + generation tokens
-        k_cache = [torch.zeros(batch_size, n_head, max_cache_len, head_size, device=device, dtype=torch.bfloat16)
+        k_cache = [torch.zeros(batch_size, n_head, 0, head_size, device=device, dtype=torch.bfloat16) 
                 for _ in range(n_layer)]
-        v_cache = [torch.zeros(batch_size, n_head, max_cache_len, head_size, device=device, dtype=torch.bfloat16)
+        v_cache = [torch.zeros(batch_size, n_head, 0, head_size, device=device, dtype=torch.bfloat16) 
                 for _ in range(n_layer)]
-        cache_pos = 0
         
         # Keep track of sequences that are still actively generating
-        # Generate the number of halos
         active_sequences = torch.ones(batch_size, dtype=torch.bool, device=device)
-        tok_emb = self.transformer.wte(idx.long()) # token embeddings of shape (b, 6, n_embd)
-        cosmo_emb = self.transformer.wce(torch.arange(0,5, dtype=torch.long, device=device))  # (5, n_embd)
-        tok_emb[:,1:6,:] += cosmo_emb.unsqueeze(0).expand(batch_size,-1,-1)
+        tok_emb = self.transformer.wte(idx.long()) # token embeddings of shape (b, 3, n_embd)
+        cosmo_emb = self.transformer.wce(torch.arange(0,2, dtype=torch.long, device=device))  # (2, n_embd)
+        tok_emb[:,1:3,:] += cosmo_emb.unsqueeze(0).expand(batch_size,-1,-1)
         x = tok_emb
-        input_len = x.size(1)
         for j, block in enumerate(self.transformer.h):
             x, k_cache[j], v_cache[j] = block(
-                x,
-                xe=xe,
-                return_kv=True,
+                x, 
+                xe=xe, 
+                return_kv=True, 
                 use_kv_cache=True,
                 k_cache=k_cache[j],
-                v_cache=v_cache[j],
-                cross_k_cache=cross_k_cache[j],
-                cross_v_cache=cross_v_cache[j],
-                cache_pos=cache_pos
+                v_cache=v_cache[j]
             )
-        cache_pos += input_len
         x = self.transformer.ln_f(x[:, -1:, :])
         if self.config.loss_type == 'cross_entropy':
             logits = self.lm_head(x)  # (batch_size, 1, vocab_size)
@@ -728,24 +680,20 @@ class HaloDecoderModel(nn.Module):
         newly_finished = active_sequences & is_finished
         active_sequences = active_sequences & (~is_finished)
 
-        # Generate the first halo token
+        # Generate the number of halos
         tok_emb = self.transformer.wte(idx[:, -1:].long()) # token embeddings of shape (b, 1, n_embd)
-        cosmo_emb = self.transformer.wce(torch.arange(5,6, dtype=torch.long, device=device))  # (1, n_embd)
+        cosmo_emb = self.transformer.wce(torch.arange(2,3, dtype=torch.long, device=device))  # (1, n_embd)
         tok_emb += cosmo_emb.unsqueeze(0).expand(batch_size,-1,-1)
         x = tok_emb
         for j, block in enumerate(self.transformer.h):
             x, k_cache[j], v_cache[j] = block(
-                x,
-                xe=xe,
-                return_kv=True,
+                x, 
+                xe=xe, 
+                return_kv=True, 
                 use_kv_cache=True,
                 k_cache=k_cache[j],
-                v_cache=v_cache[j],
-                cross_k_cache=cross_k_cache[j],
-                cross_v_cache=cross_v_cache[j],
-                cache_pos=cache_pos
+                v_cache=v_cache[j]
             )
-        cache_pos += 1
         x = self.transformer.ln_f(x)
         if self.config.loss_type == 'cross_entropy':
             logits = self.lm_head(x)  # (batch_size, 1, vocab_size)
@@ -787,18 +735,14 @@ class HaloDecoderModel(nn.Module):
             # Process through transformer blocks with KV cache
             for j, block in enumerate(self.transformer.h):
                 x, k_cache[j], v_cache[j] = block(
-                    x,
-                    xe=xe,
-                    return_kv=True,
+                    x, 
+                    xe=xe, 
+                    return_kv=True, 
                     use_kv_cache=True,
                     k_cache=k_cache[j],
-                    v_cache=v_cache[j],
-                    cross_k_cache=cross_k_cache[j],
-                    cross_v_cache=cross_v_cache[j],
-                    cache_pos=cache_pos
+                    v_cache=v_cache[j]
                 )
-            cache_pos += 1
-
+            
             x = self.transformer.ln_f(x)
 
             if self.config.loss_type == 'cross_entropy':

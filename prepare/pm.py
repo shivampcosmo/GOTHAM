@@ -370,9 +370,13 @@ def warmup_numba():
 # =============================================================================
 # MAIN SIMULATION FUNCTION
 # =============================================================================
-def run_one_simulation(sim_id):
+def run_one_simulation(sim_id, savefull=False):
     path_ic = root + "LH/%d/ICs" % (sim_id)
-    root_out = root + "rhog_LH_np_512_nsnap_3_nsel_32768/%d/" % (sim_id)
+    if savefull:
+        root_out = root + "full_rhog_LH_np_512_nsnap_3/%d/" % (sim_id)
+    else:
+        root_out = root + "rhog_LH_np_512_nsnap_3_nsel_32768/%d/" % (sim_id)
+
     os.makedirs(root_out, exist_ok=True)
 
     savefname_dmo_fields = root_out + 'dmo_fields_subvols_grid_%d_LH_%d.npy' % (grid_sbox, sim_id)
@@ -441,6 +445,10 @@ def run_one_simulation(sim_id):
                 get_env, get_vel, get_randsel = True, True, True
             else:
                 get_env, get_vel, get_randsel = False, False, False
+            
+            if savefull:
+                nrand_sel = np.arange(grid**3)
+                get_randsel = False
 
             timer.start(f"process_sim_snap_{ja}")
             dmo_fields_all_rs, rand_sel, Npart_sum, Npart_sum_sel, norm_delta, norm_vel = process_LH_sim_fast(
@@ -500,6 +508,9 @@ jax.clear_caches()
 gc.collect()
 
 sim_id = int(sys.argv[1])
-
-run_one_simulation(sim_id)
+try:
+    savefull = bool(int(sys.argv[2]))
+except:
+    savefull = True
+run_one_simulation(sim_id, savefull=savefull)
 

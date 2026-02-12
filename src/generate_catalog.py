@@ -5,8 +5,11 @@ import numpy as np
 import glob
 import os
 import sys
+from tqdm import tqdm
+import math
+# math.floor(22.4)
 
-ckpt_path = f'/work/hdd/bdne/yzhang116/checkpoints_quijote/??'
+ckpt_path = f'/mnt/ceph/users/spandey/quijote_v2_gotham/GOTHAM/checkpoints/checkpoint_new.pt'
 
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -20,14 +23,20 @@ model = HaloDecoderModel(HaloConfig).to(dev)
 model.load_state_dict(state_dict)
 model.eval()
 
+# Compile transformer blocks for optimized inference (kernel fusion, reduced overhead)
+for i in range(len(model.transformer.h)):
+    model.transformer.h[i] = torch.compile(model.transformer.h[i], mode="default")
+
 ctx = torch.amp.autocast(device_type='cuda', dtype=torch.bfloat16)
-all_param = np.loadtxt('/work/nvme/bdne/yzhang116/quijote_halos/quijote_params.txt')
-dmo_dir = '/work/hdd/bdne/spandey3/quijote_LH_discodj/full_rhog_LH_np_512_nsnap_3/'
-simids = np.loadtxt('/work/nvme/bdne/yzhang116/quijote_halos/quijote_test_idx.txt', dtype=int)
+all_param = np.loadtxt('/mnt/ceph/users/spandey/quijote_v2_gotham/GOTHAM/checkpoints/quijote_params.txt')
+dmo_dir = '/mnt/ceph/users/spandey/discodj_runs/full_rhog_LH_np_512_nsnap_3/'
+# simids = np.loadtxt('/work/nvme/bdne/yzhang116/quijote_halos/quijote_test_idx.txt', dtype=int)
+simids = np.arange(2)
 files = [dmo_dir + f'{simid}/dmo_fields_subvols_grid_8_LH_{simid}.npy' for simid in simids]
 
+BoxSize = 1000.0
 nsubox = 64**3
-num_chunks = 16
+num_chunks = 20
 chunk_size = (nsubox + num_chunks - 1) // num_chunks
 rank = int(os.environ.get("SLURM_PROCID", 0))
 Ndevices = int(os.environ.get("SLURM_NTASKS", 1))
@@ -68,7 +77,7 @@ bins_step[4] = (16.0 - 1.0) / (nvocab - 1)
 def get_prop_pos(X_val):
     pos_infer_all = []
     prop_infer_all = []
-    for jx in range(grid):
+    for jx in tqdm(range(grid)):
         for jy in range(grid):
             for jz in range(grid):
                 sentence_here = X_val[jx, jy, jz]
@@ -106,6 +115,7 @@ def get_prop_pos(X_val):
                     pass
     return np.array(pos_infer_all), np.array(prop_infer_all)
 
+
 for simid in simids[start:end]:
     param = all_param[simid]
     param = np.repeat(param[None,:], nsubox, axis=0)
@@ -116,7 +126,7 @@ for simid in simids[start:end]:
     outputs = []
     with torch.no_grad():
         with ctx:
-            for i in range(num_chunks):
+            for i in tqdm(range(num_chunks)):
                 s = i * chunk_size
                 e = min((i + 1) * chunk_size, nsubox)
                 print(f'Generating sim {simid}, chunk {i+1}/{num_chunks}, samples {s} to {e}', flush=True)
@@ -152,7 +162,7 @@ for simid in simids[start:end]:
                 del dmo_chunk
                 del params_chunk
                 del out_chunk
-                torch.cuda.empty_cache()
+                # torch.cuda.empty_cache()
 
     output = torch.cat(outputs, dim=0)  
     data = output.cpu().numpy()
@@ -162,8 +172,8 @@ for simid in simids[start:end]:
     pos, prop = get_prop_pos(data)
     prop[:,0] = np.power(10.,prop[:,0])
     catalog = np.concatenate([pos, prop], axis=1)
-    output_dir = '/work/hdd/bdne/yzhang116/generates_quijote'
+    output_dir = '/mnt/ceph/users/spandey/discodj_runs/quijote_generated_halo_cats'
     os.makedirs(output_dir, exist_ok=True)
-    out_filename =  os.path.join(output_dir, f'generated_halo_catalog_{simid}.npy')
+    out_filename =  os.path.join(output_dir, f'generated_halo_catalog_{simid}_v2.npy')
     np.save(out_filename, catalog)
     print(f'Saved generated halos for sim {simid} to {out_filename}')
