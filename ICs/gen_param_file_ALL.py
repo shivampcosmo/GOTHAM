@@ -7,11 +7,11 @@ from tqdm import tqdm
 # sim_id = int(sys.argv[2])
 # print(sim_id)
 
-js_min = 0
-js_max = 10
+js_min = 663
+js_max = 664
 js_all = np.arange(js_min, js_max).astype(int)
 
-sdir_base = '/mnt/ceph/users/spandey/discodj_runs/LH'
+sdir_base = '/mnt/ceph/users/spandey/discodj_runs/test_2gpc/LH'
 
 for js in tqdm(js_all):
 
@@ -45,7 +45,7 @@ for js in tqdm(js_all):
                     value = float(line.split()[1])
                 values_all[variable] = value
 
-    ffile = open('./2LPT_base.param', 'r')
+    ffile = open('./2LPT_base_1024.param', 'r')
     f = ffile.readlines()
     ffile.close()
 
@@ -60,6 +60,6 @@ for js in tqdm(js_all):
 
         g += line
             
-    ffile = open(sdir_IC + '/2LPT.param', 'w')
+    ffile = open(sdir_IC + '/2LPT_1024.param', 'w')
     ffile.write(g)
     ffile.close()

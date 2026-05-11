@@ -43,7 +43,7 @@ for (( JDEVICE=0; JDEVICE<TOTAL_DEVICES; JDEVICE++ )); do
 #SBATCH --ntasks-per-node=50
 #SBATCH -C rome
 #SBATCH -p cmbas
-#SBATCH --time=1:00:00
+#SBATCH --time=1:30:00
 #SBATCH --job-name=${JOB_NAME}
 #SBATCH --output=${LOG_DIR}/%x.%j.out
 #SBATCH --error=${LOG_DIR}/%x.%j.err

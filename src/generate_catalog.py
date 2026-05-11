@@ -7,116 +7,132 @@ import os
 import sys
 from tqdm import tqdm
 import math
-# math.floor(22.4)
 
-ckpt_path = f'/mnt/ceph/users/spandey/quijote_v2_gotham/GOTHAM/checkpoints/checkpoint_new.pt'
+simid = int(sys.argv[1])
+output_dir = '/mnt/ceph/users/spandey/discodj_runs/quijote_generated_halo_cats'
+os.makedirs(output_dir, exist_ok=True)
+out_filename =  os.path.join(output_dir, f'generated_halo_catalog_{simid}.npy')
 
-dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# check if the file doesn't exist the execute, else not
+if os.path.exists(out_filename):
+    print(f'File {out_filename} already exists, skipping generation for sim {simid}')
+    sys.exit(0)
+else:
 
-checkpoint = torch.load(ckpt_path, map_location=dev)
-state_dict = checkpoint["model"]
-state_dict = {k.replace("module.", ""): v for k, v in state_dict.items()}
+    ckpt_path = f'/mnt/ceph/users/spandey/quijote_v2_gotham/GOTHAM/checkpoints/checkpoint_new.pt'
 
-HaloConfig = checkpoint['config']
+    dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-model = HaloDecoderModel(HaloConfig).to(dev)
-model.load_state_dict(state_dict)
-model.eval()
+    checkpoint = torch.load(ckpt_path, map_location=dev)
+    state_dict = checkpoint["model"]
+    state_dict = {k.replace("module.", ""): v for k, v in state_dict.items()}
 
-# Compile transformer blocks for optimized inference (kernel fusion, reduced overhead)
-for i in range(len(model.transformer.h)):
-    model.transformer.h[i] = torch.compile(model.transformer.h[i], mode="default")
+    HaloConfig = checkpoint['config']
 
-ctx = torch.amp.autocast(device_type='cuda', dtype=torch.bfloat16)
-all_param = np.loadtxt('/mnt/ceph/users/spandey/quijote_v2_gotham/GOTHAM/checkpoints/quijote_params.txt')
-dmo_dir = '/mnt/ceph/users/spandey/discodj_runs/full_rhog_LH_np_512_nsnap_3/'
-# simids = np.loadtxt('/work/nvme/bdne/yzhang116/quijote_halos/quijote_test_idx.txt', dtype=int)
-simids = np.arange(2)
-files = [dmo_dir + f'{simid}/dmo_fields_subvols_grid_8_LH_{simid}.npy' for simid in simids]
+    model = HaloDecoderModel(HaloConfig).to(dev)
+    model.load_state_dict(state_dict)
+    model.eval()
 
-BoxSize = 1000.0
-nsubox = 64**3
-num_chunks = 20
-chunk_size = (nsubox + num_chunks - 1) // num_chunks
-rank = int(os.environ.get("SLURM_PROCID", 0))
-Ndevices = int(os.environ.get("SLURM_NTASKS", 1))
-totnum = len(simids)
-num_per_device = totnum // Ndevices
-start = rank * num_per_device
-end = start + num_per_device
+    # Compile transformer blocks for optimized inference (kernel fusion, reduced overhead)
+    for i in range(len(model.transformer.h)):
+        model.transformer.h[i] = torch.compile(model.transformer.h[i], mode="default")
 
-nvocab = 131
-start_token = nvocab + 1
-space_token = nvocab + 2
-pad_token = nvocab + 3
-end_token = nvocab + 4
-target_len = 296
-grid = 64
-pos_vocab = 40
-add_space_token = False
-dim_tot = 8
-dim_prop = 5
+    ctx = torch.amp.autocast(device_type='cuda', dtype=torch.bfloat16)
+    all_param = np.loadtxt('/mnt/ceph/users/spandey/quijote_v2_gotham/GOTHAM/checkpoints/quijote_params.txt')
+    dmo_dir = '/mnt/ceph/users/spandey/discodj_runs/full_rhog_LH_np_512_nsnap_3/'
+    # simids = np.loadtxt('/work/nvme/bdne/yzhang116/quijote_halos/quijote_test_idx.txt', dtype=int)
+    simids = np.arange(2000)
+    files = [dmo_dir + f'{simid}/dmo_fields_subvols_grid_8_LH_{simid}.npy' for simid in simids]
 
-xarray = np.arange(pos_vocab) * (BoxSize / pos_vocab / grid)
-xarray = np.concatenate((xarray, [BoxSize/grid]))
-dx = BoxSize / (pos_vocab * grid)
-bins_digitize = np.zeros((dim_prop, nvocab+1))
-bins_digitize[0,:-1] = np.linspace(12.7, 15.0, nvocab)
-bins_digitize[0,-1] = 15.0
-for i in range(1,4):
-    bins_digitize[i,:-1] = np.linspace(-1250, 1250, nvocab)
-    bins_digitize[i,-1] = 1250.0
-bins_digitize[4,:-1] = np.linspace(1.0, 16.0, nvocab)
-bins_digitize[4,-1] = 16.0
-bins_step = np.zeros(dim_prop)
-bins_step[0] = (15.0 - 12.7) / (nvocab - 1)
-for i in range(1,4):
-    bins_step[i] = (1250.0 - (-1250.0)) / (nvocab - 1)
-bins_step[4] = (16.0 - 1.0) / (nvocab - 1)
 
-def get_prop_pos(X_val):
-    pos_infer_all = []
-    prop_infer_all = []
-    for jx in tqdm(range(grid)):
-        for jy in range(grid):
-            for jz in range(grid):
-                sentence_here = X_val[jx, jy, jz]
-                if add_space_token:
-                    ntokens_per_halo = dim_tot + 1
-                else:
-                    ntokens_per_halo = dim_tot
-                ind_start_token = np.where(sentence_here == start_token)[0][0]
-                
-                if end_token in sentence_here:
-                    ind_end_token = np.where(sentence_here == end_token)[0][0]
-                    Nhalos_here = ((ind_end_token - ind_start_token - 1) / ntokens_per_halo)
-                    if (int(Nhalos_here) - Nhalos_here) != 0:
-                        print(Nhalos_here, 'Nhalos_here is not an integer')
+
+    BoxSize = 1000.0
+    nsubox = 64**3
+    num_chunks = 20
+    chunk_size = (nsubox + num_chunks - 1) // num_chunks
+
+    # rank = int(os.environ.get("SLURM_PROCID", 0))
+    # Ndevices = int(os.environ.get("SLURM_NTASKS", 1))
+    # totnum = len(simids)
+    # num_per_device = totnum // Ndevices
+    # start = rank * num_per_device
+    # end = start + num_per_device
+    # start = int(sys.argv[1])
+    # end = int(sys.argv[2])
+
+
+    nvocab = 131
+    start_token = nvocab + 1
+    space_token = nvocab + 2
+    pad_token = nvocab + 3
+    end_token = nvocab + 4
+    target_len = 296
+    grid = 64
+    pos_vocab = 40
+    add_space_token = False
+    dim_tot = 8
+    dim_prop = 5
+
+    xarray = np.arange(pos_vocab) * (BoxSize / pos_vocab / grid)
+    xarray = np.concatenate((xarray, [BoxSize/grid]))
+    dx = BoxSize / (pos_vocab * grid)
+    bins_digitize = np.zeros((dim_prop, nvocab+1))
+    bins_digitize[0,:-1] = np.linspace(12.7, 15.0, nvocab)
+    bins_digitize[0,-1] = 15.0
+    for i in range(1,4):
+        bins_digitize[i,:-1] = np.linspace(-1250, 1250, nvocab)
+        bins_digitize[i,-1] = 1250.0
+    bins_digitize[4,:-1] = np.linspace(1.0, 16.0, nvocab)
+    bins_digitize[4,-1] = 16.0
+    bins_step = np.zeros(dim_prop)
+    bins_step[0] = (15.0 - 12.7) / (nvocab - 1)
+    for i in range(1,4):
+        bins_step[i] = (1250.0 - (-1250.0)) / (nvocab - 1)
+    bins_step[4] = (16.0 - 1.0) / (nvocab - 1)
+
+    def get_prop_pos(X_val):
+        pos_infer_all = []
+        prop_infer_all = []
+        for jx in tqdm(range(grid)):
+            for jy in range(grid):
+                for jz in range(grid):
+                    sentence_here = X_val[jx, jy, jz]
+                    if add_space_token:
+                        ntokens_per_halo = dim_tot + 1
                     else:
-                        if Nhalos_here > 0:
-                            for jh in range(int(Nhalos_here)):
-                                try:
-                                    prop_all = np.zeros(dim_prop, dtype=np.float32)        
-                                    for jp in range(dim_prop):
-                                        bin_val_jp = sentence_here[ind_start_token + jh*ntokens_per_halo + 4 + jp]
-                                        prop_all[jp] = (bins_digitize[jp, bin_val_jp] +np.random.uniform(-0.5,0.5) * bins_step[jp]).clip(min=bins_digitize[jp,0], max=bins_digitize[jp,-1])
+                        ntokens_per_halo = dim_tot
+                    ind_start_token = np.where(sentence_here == start_token)[0][0]
+                    
+                    if end_token in sentence_here:
+                        ind_end_token = np.where(sentence_here == end_token)[0][0]
+                        Nhalos_here = ((ind_end_token - ind_start_token - 1) / ntokens_per_halo)
+                        if (int(Nhalos_here) - Nhalos_here) != 0:
+                            print(Nhalos_here, 'Nhalos_here is not an integer')
+                        else:
+                            if Nhalos_here > 0:
+                                for jh in range(int(Nhalos_here)):
+                                    try:
+                                        prop_all = np.zeros(dim_prop, dtype=np.float32)        
+                                        for jp in range(dim_prop):
+                                            bin_val_jp = sentence_here[ind_start_token + jh*ntokens_per_halo + 4 + jp]
+                                            prop_all[jp] = (bins_digitize[jp, bin_val_jp] +np.random.uniform(-0.5,0.5) * bins_step[jp]).clip(min=bins_digitize[jp,0], max=bins_digitize[jp,-1])
 
-                                    coord_x = (xarray[sentence_here[ind_start_token + jh*ntokens_per_halo + 1]] + (BoxSize/grid)*jx + np.random.uniform(-0.5,0.5)*dx) % BoxSize
-                                    coord_y = (xarray[sentence_here[ind_start_token + jh*ntokens_per_halo + 2]] + (BoxSize/grid)*jy + np.random.uniform(-0.5,0.5)*dx) % BoxSize
-                                    coord_z = (xarray[sentence_here[ind_start_token + jh*ntokens_per_halo + 3]] + (BoxSize/grid)*jz + np.random.uniform(-0.5,0.5)*dx) % BoxSize
-                                    pos_infer_all.append([coord_x, coord_y, coord_z])
-                                    prop_infer_all.append(prop_all)
+                                        coord_x = (xarray[sentence_here[ind_start_token + jh*ntokens_per_halo + 1]] + (BoxSize/grid)*jx + np.random.uniform(-0.5,0.5)*dx) % BoxSize
+                                        coord_y = (xarray[sentence_here[ind_start_token + jh*ntokens_per_halo + 2]] + (BoxSize/grid)*jy + np.random.uniform(-0.5,0.5)*dx) % BoxSize
+                                        coord_z = (xarray[sentence_here[ind_start_token + jh*ntokens_per_halo + 3]] + (BoxSize/grid)*jz + np.random.uniform(-0.5,0.5)*dx) % BoxSize
+                                        pos_infer_all.append([coord_x, coord_y, coord_z])
+                                        prop_infer_all.append(prop_all)
 
-                                except Exception as e:
-                                   print(e)
-                                pass
-                else:           
-                    print('End token not found')
-                    pass
-    return np.array(pos_infer_all), np.array(prop_infer_all)
+                                    except Exception as e:
+                                        print(e)
+                                        pass
+                    else:           
+                        print('End token not found')
+                        pass
+        return np.array(pos_infer_all), np.array(prop_infer_all)
 
 
-for simid in simids[start:end]:
+    # for simid in simids[start:end]:
     param = all_param[simid]
     param = np.repeat(param[None,:], nsubox, axis=0)
     params_rep = torch.tensor(param, device=dev).bfloat16()
@@ -172,8 +188,5 @@ for simid in simids[start:end]:
     pos, prop = get_prop_pos(data)
     prop[:,0] = np.power(10.,prop[:,0])
     catalog = np.concatenate([pos, prop], axis=1)
-    output_dir = '/mnt/ceph/users/spandey/discodj_runs/quijote_generated_halo_cats'
-    os.makedirs(output_dir, exist_ok=True)
-    out_filename =  os.path.join(output_dir, f'generated_halo_catalog_{simid}_v2.npy')
     np.save(out_filename, catalog)
     print(f'Saved generated halos for sim {simid} to {out_filename}')

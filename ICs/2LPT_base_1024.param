@@ -1,0 +1,34 @@
+    Nmesh            1024      
+    Nsample          1024       
+    Box              2000000.0   
+    FileBase         ics         
+    OutputDir        ./          
+    GlassFile        /mnt/ceph/users/spandey/fastpm/paco_2lpt/GLASS/dummy_glass_dmonly_64.dat
+    GlassTileFac     16         
+    Omega            0.1755    
+    OmegaLambda      0.8245    
+    OmegaBaryon      0.0000    
+    OmegaDM_2ndSpecies  0.0    
+    HubbleParam      0.7737    
+    Redshift         127       
+    Sigma8           0.6641       
+    SphereMode       0         
+    WhichSpectrum    2         
+    FileWithInputSpectrum   ./Pk_mm_z=0.000.txt
+    InputSpectrum_UnitLength_in_cm  3.085678e24 
+    ShapeGamma       0.201     
+    PrimordialIndex  1.0       
+    
+    Phase_flip          0      
+    RayleighSampling    1      
+    Seed                0      
+    
+    NumFilesWrittenInParallel 8  
+    UnitLength_in_cm          3.085678e21  
+    UnitMass_in_g             1.989e43     
+    UnitVelocity_in_cm_per_s  1e5          
+    
+    WDM_On               0      
+    WDM_Vtherm_On        0      
+    WDM_PartMass_in_kev  10.0   
+    
