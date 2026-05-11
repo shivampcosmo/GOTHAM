@@ -1,0 +1,926 @@
+epoch: 0 step 0 Mean loss of all gpus for this batch:  1.9212241172790527
+epoch: 0 step 1 Mean loss of all gpus for this batch:  2.0468523502349854
+epoch: 0 step 2 Mean loss of all gpus for this batch:  1.9834870100021362
+epoch: 0 step 3 Mean loss of all gpus for this batch:  2.0886707305908203
+epoch: 0 step 4 Mean loss of all gpus for this batch:  2.0093295574188232
+epoch: 0 step 5 Mean loss of all gpus for this batch:  1.9955952167510986
+epoch: 0 step 6 Mean loss of all gpus for this batch:  2.01278018951416
+epoch: 0 step 7 Mean loss of all gpus for this batch:  1.9743845462799072
+epoch: 0 step 8 Mean loss of all gpus for this batch:  2.0299131870269775
+epoch: 0 step 9 Mean loss of all gpus for this batch:  1.9672590494155884
+epoch: 0 step 10 Mean loss of all gpus for this batch:  2.0563440322875977
+epoch: 0 step 11 Mean loss of all gpus for this batch:  2.0360054969787598
+epoch: 0 step 12 Mean loss of all gpus for this batch:  1.9758319854736328
+epoch: 0 step 13 Mean loss of all gpus for this batch:  2.0289251804351807
+epoch: 0 step 14 Mean loss of all gpus for this batch:  1.997093915939331
+epoch: 0 step 15 Mean loss of all gpus for this batch:  1.9654943943023682
+epoch: 0 step 16 Mean loss of all gpus for this batch:  1.8960868120193481
+epoch: 0 step 17 Mean loss of all gpus for this batch:  1.9852759838104248
+epoch: 0 step 18 Mean loss of all gpus for this batch:  1.9192347526550293
+epoch: 0 step 19 Mean loss of all gpus for this batch:  1.8767224550247192
+epoch: 0 step 20 Mean loss of all gpus for this batch:  1.9889925718307495
+epoch: 0 step 21 Mean loss of all gpus for this batch:  1.9829741716384888
+epoch: 0 step 22 Mean loss of all gpus for this batch:  1.9587606191635132
+epoch: 0 step 23 Mean loss of all gpus for this batch:  1.9140053987503052
+epoch: 0 step 24 Mean loss of all gpus for this batch:  1.9286268949508667
+epoch: 0 step 25 Mean loss of all gpus for this batch:  2.0532894134521484
+epoch: 0 step 26 Mean loss of all gpus for this batch:  2.019747257232666
+epoch: 0 step 27 Mean loss of all gpus for this batch:  1.995379090309143
+epoch: 0 step 28 Mean loss of all gpus for this batch:  1.9669243097305298
+epoch: 0 step 29 Mean loss of all gpus for this batch:  1.9611265659332275
+epoch: 0 step 30 Mean loss of all gpus for this batch:  1.9696850776672363
+epoch: 0 step 31 Mean loss of all gpus for this batch:  1.9841362237930298
+epoch: 0 step 32 Mean loss of all gpus for this batch:  2.015197992324829
+epoch: 0 step 33 Mean loss of all gpus for this batch:  1.9839826822280884
+epoch: 0 step 34 Mean loss of all gpus for this batch:  1.9780936241149902
+epoch: 0 step 35 Mean loss of all gpus for this batch:  2.019355535507202
+epoch: 0 step 36 Mean loss of all gpus for this batch:  1.9741926193237305
+epoch: 0 step 37 Mean loss of all gpus for this batch:  1.9800868034362793
+epoch: 0 step 38 Mean loss of all gpus for this batch:  1.9821447134017944
+epoch: 0 step 39 Mean loss of all gpus for this batch:  1.9601120948791504
+epoch: 0 step 40 Mean loss of all gpus for this batch:  1.976714015007019
+epoch: 0 step 41 Mean loss of all gpus for this batch:  1.9594051837921143
+epoch: 0 step 42 Mean loss of all gpus for this batch:  1.937562108039856
+epoch: 0 step 43 Mean loss of all gpus for this batch:  2.009242534637451
+epoch: 0 step 44 Mean loss of all gpus for this batch:  2.00105881690979
+epoch: 0 step 45 Mean loss of all gpus for this batch:  1.9814167022705078
+epoch: 0 step 46 Mean loss of all gpus for this batch:  1.9839781522750854
+epoch: 0 step 47 Mean loss of all gpus for this batch:  2.0659289360046387
+epoch: 0 step 48 Mean loss of all gpus for this batch:  2.041562795639038
+epoch: 0 step 49 Mean loss of all gpus for this batch:  1.9917988777160645
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_50_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 1.7951804796854656 mins
+Sim 1414: true halos = 140330, inferred halos = 130562
+Number of inferred halos: 130562
+epoch: 0 step 50 Mean loss of all gpus for this batch:  1.9930825233459473
+epoch: 0 step 51 Mean loss of all gpus for this batch:  1.9377539157867432
+epoch: 0 step 52 Mean loss of all gpus for this batch:  1.9989982843399048
+epoch: 0 step 53 Mean loss of all gpus for this batch:  1.9256048202514648
+epoch: 0 step 54 Mean loss of all gpus for this batch:  2.0680558681488037
+epoch: 0 step 55 Mean loss of all gpus for this batch:  1.9243320226669312
+epoch: 0 step 56 Mean loss of all gpus for this batch:  2.027874708175659
+epoch: 0 step 57 Mean loss of all gpus for this batch:  1.9558652639389038
+epoch: 0 step 58 Mean loss of all gpus for this batch:  2.0056703090667725
+epoch: 0 step 59 Mean loss of all gpus for this batch:  1.9518790245056152
+epoch: 0 step 60 Mean loss of all gpus for this batch:  2.012301445007324
+epoch: 0 step 61 Mean loss of all gpus for this batch:  2.0054266452789307
+epoch: 0 step 62 Mean loss of all gpus for this batch:  2.0327587127685547
+epoch: 0 step 63 Mean loss of all gpus for this batch:  2.0038022994995117
+epoch: 0 step 64 Mean loss of all gpus for this batch:  1.9542303085327148
+epoch: 0 step 65 Mean loss of all gpus for this batch:  2.0351176261901855
+epoch: 0 step 66 Mean loss of all gpus for this batch:  1.9989362955093384
+epoch: 0 step 67 Mean loss of all gpus for this batch:  1.948676586151123
+epoch: 0 step 68 Mean loss of all gpus for this batch:  1.96371328830719
+epoch: 0 step 69 Mean loss of all gpus for this batch:  2.0825130939483643
+epoch: 0 step 70 Mean loss of all gpus for this batch:  1.9667136669158936
+epoch: 0 step 71 Mean loss of all gpus for this batch:  1.9172242879867554
+epoch: 0 step 72 Mean loss of all gpus for this batch:  1.9765247106552124
+epoch: 0 step 73 Mean loss of all gpus for this batch:  2.0204665660858154
+epoch: 0 step 74 Mean loss of all gpus for this batch:  2.0518693923950195
+epoch: 0 step 75 Mean loss of all gpus for this batch:  2.0527875423431396
+epoch: 0 step 76 Mean loss of all gpus for this batch:  2.046215057373047
+epoch: 0 step 77 Mean loss of all gpus for this batch:  2.060452461242676
+epoch: 0 step 78 Mean loss of all gpus for this batch:  1.9473191499710083
+epoch: 0 step 79 Mean loss of all gpus for this batch:  2.0617575645446777
+epoch: 0 step 80 Mean loss of all gpus for this batch:  2.0180704593658447
+epoch: 0 step 81 Mean loss of all gpus for this batch:  2.008082389831543
+epoch: 0 step 82 Mean loss of all gpus for this batch:  2.0762717723846436
+epoch: 0 step 83 Mean loss of all gpus for this batch:  1.994257926940918
+epoch: 0 step 84 Mean loss of all gpus for this batch:  2.008880853652954
+epoch: 0 step 85 Mean loss of all gpus for this batch:  2.0118305683135986
+epoch: 0 step 86 Mean loss of all gpus for this batch:  1.9444431066513062
+epoch: 0 step 87 Mean loss of all gpus for this batch:  2.0323309898376465
+epoch: 0 step 88 Mean loss of all gpus for this batch:  2.0520782470703125
+epoch: 0 step 89 Mean loss of all gpus for this batch:  1.8736789226531982
+epoch: 0 step 90 Mean loss of all gpus for this batch:  1.9171313047409058
+epoch: 0 step 91 Mean loss of all gpus for this batch:  1.9868496656417847
+epoch: 0 step 92 Mean loss of all gpus for this batch:  2.0428290367126465
+epoch: 0 step 93 Mean loss of all gpus for this batch:  2.018364429473877
+epoch: 0 step 94 Mean loss of all gpus for this batch:  1.9686861038208008
+epoch: 0 step 95 Mean loss of all gpus for this batch:  1.9564006328582764
+epoch: 0 step 96 Mean loss of all gpus for this batch:  1.974258303642273
+epoch: 0 step 97 Mean loss of all gpus for this batch:  1.9760605096817017
+epoch: 0 step 98 Mean loss of all gpus for this batch:  1.9775868654251099
+epoch: 0 step 99 Mean loss of all gpus for this batch:  1.9736766815185547
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_100_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 1.529796548684438 mins
+Sim 1414: true halos = 140330, inferred halos = 125786
+Number of inferred halos: 125786
+epoch: 0 step 100 Mean loss of all gpus for this batch:  1.926283597946167
+epoch: 0 step 101 Mean loss of all gpus for this batch:  2.0062901973724365
+epoch: 0 step 102 Mean loss of all gpus for this batch:  2.0377330780029297
+epoch: 0 step 103 Mean loss of all gpus for this batch:  2.0161993503570557
+epoch: 0 step 104 Mean loss of all gpus for this batch:  2.011925220489502
+epoch: 0 step 105 Mean loss of all gpus for this batch:  1.984415888786316
+epoch: 0 step 106 Mean loss of all gpus for this batch:  2.0241589546203613
+epoch: 0 step 107 Mean loss of all gpus for this batch:  1.9547110795974731
+epoch: 0 step 108 Mean loss of all gpus for this batch:  1.9925254583358765
+epoch: 0 step 109 Mean loss of all gpus for this batch:  1.9752825498580933
+epoch: 0 step 110 Mean loss of all gpus for this batch:  2.0306758880615234
+epoch: 0 step 111 Mean loss of all gpus for this batch:  1.932490348815918
+epoch: 0 step 112 Mean loss of all gpus for this batch:  2.0392420291900635
+epoch: 0 step 113 Mean loss of all gpus for this batch:  2.0197010040283203
+epoch: 0 step 114 Mean loss of all gpus for this batch:  1.9964698553085327
+epoch: 0 step 115 Mean loss of all gpus for this batch:  2.066861867904663
+epoch: 0 step 116 Mean loss of all gpus for this batch:  2.034620761871338
+epoch: 0 step 117 Mean loss of all gpus for this batch:  1.9679468870162964
+epoch: 0 step 118 Mean loss of all gpus for this batch:  2.0258891582489014
+epoch: 0 step 119 Mean loss of all gpus for this batch:  1.9441519975662231
+epoch: 0 step 120 Mean loss of all gpus for this batch:  2.0803842544555664
+epoch: 0 step 121 Mean loss of all gpus for this batch:  1.9820640087127686
+epoch: 0 step 122 Mean loss of all gpus for this batch:  2.02021861076355
+epoch: 0 step 123 Mean loss of all gpus for this batch:  2.010345935821533
+epoch: 0 step 124 Mean loss of all gpus for this batch:  1.9846806526184082
+epoch: 0 step 125 Mean loss of all gpus for this batch:  1.930603265762329
+epoch: 0 step 126 Mean loss of all gpus for this batch:  1.9495381116867065
+epoch: 0 step 127 Mean loss of all gpus for this batch:  1.9868146181106567
+epoch: 0 step 128 Mean loss of all gpus for this batch:  2.0512068271636963
+epoch: 0 step 129 Mean loss of all gpus for this batch:  2.0085577964782715
+epoch: 0 step 130 Mean loss of all gpus for this batch:  1.9957976341247559
+epoch: 0 step 131 Mean loss of all gpus for this batch:  2.0011751651763916
+epoch: 0 step 132 Mean loss of all gpus for this batch:  1.9130133390426636
+epoch: 0 step 133 Mean loss of all gpus for this batch:  1.9944192171096802
+epoch: 0 step 134 Mean loss of all gpus for this batch:  1.9998068809509277
+epoch: 0 step 135 Mean loss of all gpus for this batch:  2.0223183631896973
+epoch: 0 step 136 Mean loss of all gpus for this batch:  2.020659923553467
+epoch: 0 step 137 Mean loss of all gpus for this batch:  1.93796706199646
+epoch: 0 step 138 Mean loss of all gpus for this batch:  1.9452834129333496
+epoch: 0 step 139 Mean loss of all gpus for this batch:  2.0336477756500244
+epoch: 0 step 140 Mean loss of all gpus for this batch:  2.0607845783233643
+epoch: 0 step 141 Mean loss of all gpus for this batch:  2.003819465637207
+epoch: 0 step 142 Mean loss of all gpus for this batch:  1.9698193073272705
+epoch: 0 step 143 Mean loss of all gpus for this batch:  1.9531339406967163
+epoch: 0 step 144 Mean loss of all gpus for this batch:  1.9743372201919556
+epoch: 0 step 145 Mean loss of all gpus for this batch:  1.8765642642974854
+epoch: 0 step 146 Mean loss of all gpus for this batch:  2.012713670730591
+epoch: 0 step 147 Mean loss of all gpus for this batch:  1.9842973947525024
+epoch: 0 step 148 Mean loss of all gpus for this batch:  2.041959524154663
+epoch: 0 step 149 Mean loss of all gpus for this batch:  2.0536534786224365
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_150_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 1.7318167805671691 mins
+Sim 1414: true halos = 140330, inferred halos = 148698
+Number of inferred halos: 148698
+epoch: 0 step 150 Mean loss of all gpus for this batch:  1.9321355819702148
+epoch: 0 step 151 Mean loss of all gpus for this batch:  1.9766970872879028
+epoch: 0 step 152 Mean loss of all gpus for this batch:  1.9569200277328491
+epoch: 0 step 153 Mean loss of all gpus for this batch:  1.9905799627304077
+epoch: 0 step 154 Mean loss of all gpus for this batch:  2.0370256900787354
+epoch: 0 step 155 Mean loss of all gpus for this batch:  1.9800536632537842
+epoch: 0 step 156 Mean loss of all gpus for this batch:  1.9638303518295288
+epoch: 0 step 157 Mean loss of all gpus for this batch:  2.109799385070801
+epoch: 0 step 158 Mean loss of all gpus for this batch:  2.063631534576416
+epoch: 0 step 159 Mean loss of all gpus for this batch:  1.9317188262939453
+epoch: 0 step 160 Mean loss of all gpus for this batch:  1.946123719215393
+epoch: 0 step 161 Mean loss of all gpus for this batch:  1.985823631286621
+epoch: 0 step 162 Mean loss of all gpus for this batch:  1.9069898128509521
+epoch: 0 step 163 Mean loss of all gpus for this batch:  2.009927272796631
+epoch: 0 step 164 Mean loss of all gpus for this batch:  2.007521867752075
+epoch: 0 step 165 Mean loss of all gpus for this batch:  1.99532949924469
+epoch: 0 step 166 Mean loss of all gpus for this batch:  2.009765148162842
+epoch: 0 step 167 Mean loss of all gpus for this batch:  2.0263102054595947
+epoch: 0 step 168 Mean loss of all gpus for this batch:  1.9923328161239624
+epoch: 0 step 169 Mean loss of all gpus for this batch:  2.0628857612609863
+epoch: 0 step 170 Mean loss of all gpus for this batch:  1.979131817817688
+epoch: 0 step 171 Mean loss of all gpus for this batch:  1.9222904443740845
+epoch: 0 step 172 Mean loss of all gpus for this batch:  1.9960256814956665
+epoch: 0 step 173 Mean loss of all gpus for this batch:  1.9605633020401
+epoch: 0 step 174 Mean loss of all gpus for this batch:  2.0043301582336426
+epoch: 0 step 175 Mean loss of all gpus for this batch:  1.9960415363311768
+epoch: 0 step 176 Mean loss of all gpus for this batch:  2.0048024654388428
+epoch: 0 step 177 Mean loss of all gpus for this batch:  2.0467581748962402
+epoch: 0 step 178 Mean loss of all gpus for this batch:  2.004629135131836
+epoch: 0 step 179 Mean loss of all gpus for this batch:  1.997556447982788
+epoch: 0 step 180 Mean loss of all gpus for this batch:  1.9800336360931396
+epoch: 0 step 181 Mean loss of all gpus for this batch:  1.944739818572998
+epoch: 0 step 182 Mean loss of all gpus for this batch:  1.9292768239974976
+epoch: 0 step 183 Mean loss of all gpus for this batch:  1.9988642930984497
+epoch: 0 step 184 Mean loss of all gpus for this batch:  2.0494327545166016
+epoch: 0 step 185 Mean loss of all gpus for this batch:  1.9738490581512451
+epoch: 0 step 186 Mean loss of all gpus for this batch:  2.0686590671539307
+epoch: 0 step 187 Mean loss of all gpus for this batch:  1.9781129360198975
+epoch: 0 step 188 Mean loss of all gpus for this batch:  2.081759214401245
+epoch: 0 step 189 Mean loss of all gpus for this batch:  2.044414758682251
+epoch: 0 step 190 Mean loss of all gpus for this batch:  1.9802680015563965
+epoch: 0 step 191 Mean loss of all gpus for this batch:  2.0026090145111084
+epoch: 0 step 192 Mean loss of all gpus for this batch:  1.9932156801223755
+epoch: 0 step 193 Mean loss of all gpus for this batch:  1.9648566246032715
+epoch: 0 step 194 Mean loss of all gpus for this batch:  2.0082755088806152
+epoch: 0 step 195 Mean loss of all gpus for this batch:  2.044809579849243
+epoch: 0 step 196 Mean loss of all gpus for this batch:  2.021944046020508
+epoch: 0 step 197 Mean loss of all gpus for this batch:  1.9590970277786255
+epoch: 0 step 198 Mean loss of all gpus for this batch:  2.0185513496398926
+epoch: 0 step 199 Mean loss of all gpus for this batch:  2.0287692546844482
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_200_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 1.7613228559494019 mins
+Sim 1414: true halos = 140330, inferred halos = 138999
+Number of inferred halos: 138999
+epoch: 0 step 200 Mean loss of all gpus for this batch:  2.088012933731079
+epoch: 0 step 201 Mean loss of all gpus for this batch:  1.9551723003387451
+epoch: 0 step 202 Mean loss of all gpus for this batch:  2.02494740486145
+epoch: 0 step 203 Mean loss of all gpus for this batch:  2.039113759994507
+epoch: 0 step 204 Mean loss of all gpus for this batch:  1.9668734073638916
+epoch: 0 step 205 Mean loss of all gpus for this batch:  2.0310869216918945
+epoch: 0 step 206 Mean loss of all gpus for this batch:  1.9896916151046753
+epoch: 0 step 207 Mean loss of all gpus for this batch:  1.9995218515396118
+epoch: 0 step 208 Mean loss of all gpus for this batch:  1.9690823554992676
+epoch: 0 step 209 Mean loss of all gpus for this batch:  1.990379810333252
+epoch: 0 step 210 Mean loss of all gpus for this batch:  2.0282111167907715
+epoch: 0 step 211 Mean loss of all gpus for this batch:  2.002607583999634
+epoch: 0 step 212 Mean loss of all gpus for this batch:  2.048056125640869
+epoch: 0 step 213 Mean loss of all gpus for this batch:  2.0871896743774414
+epoch: 0 step 214 Mean loss of all gpus for this batch:  1.9489219188690186
+epoch: 0 step 215 Mean loss of all gpus for this batch:  1.9926515817642212
+epoch: 0 step 216 Mean loss of all gpus for this batch:  2.046497344970703
+epoch: 0 step 217 Mean loss of all gpus for this batch:  1.9994149208068848
+epoch: 0 step 218 Mean loss of all gpus for this batch:  2.0864551067352295
+epoch: 0 step 219 Mean loss of all gpus for this batch:  1.996475100517273
+epoch: 0 step 220 Mean loss of all gpus for this batch:  2.0363924503326416
+epoch: 0 step 221 Mean loss of all gpus for this batch:  1.9977023601531982
+epoch: 0 step 222 Mean loss of all gpus for this batch:  1.9734007120132446
+epoch: 0 step 223 Mean loss of all gpus for this batch:  1.9858278036117554
+epoch: 0 step 224 Mean loss of all gpus for this batch:  1.9826560020446777
+epoch: 0 step 225 Mean loss of all gpus for this batch:  1.9350864887237549
+epoch: 0 step 226 Mean loss of all gpus for this batch:  2.05829119682312
+epoch: 0 step 227 Mean loss of all gpus for this batch:  2.01961612701416
+epoch: 0 step 228 Mean loss of all gpus for this batch:  1.8660660982131958
+epoch: 0 step 229 Mean loss of all gpus for this batch:  2.012321949005127
+epoch: 0 step 230 Mean loss of all gpus for this batch:  2.009413003921509
+epoch: 0 step 231 Mean loss of all gpus for this batch:  1.922678828239441
+epoch: 0 step 232 Mean loss of all gpus for this batch:  2.0185394287109375
+epoch: 0 step 233 Mean loss of all gpus for this batch:  1.9965617656707764
+epoch: 0 step 234 Mean loss of all gpus for this batch:  1.999678373336792
+epoch: 0 step 235 Mean loss of all gpus for this batch:  2.0515248775482178
+epoch: 0 step 236 Mean loss of all gpus for this batch:  2.0642008781433105
+epoch: 0 step 237 Mean loss of all gpus for this batch:  2.0886192321777344
+epoch: 0 step 238 Mean loss of all gpus for this batch:  2.1193490028381348
+epoch: 0 step 239 Mean loss of all gpus for this batch:  2.058779001235962
+epoch: 0 step 240 Mean loss of all gpus for this batch:  2.0409083366394043
+epoch: 0 step 241 Mean loss of all gpus for this batch:  2.0381948947906494
+epoch: 0 step 242 Mean loss of all gpus for this batch:  1.9678318500518799
+epoch: 0 step 243 Mean loss of all gpus for this batch:  1.9982630014419556
+epoch: 0 step 244 Mean loss of all gpus for this batch:  2.061013698577881
+epoch: 0 step 245 Mean loss of all gpus for this batch:  2.023393392562866
+epoch: 0 step 246 Mean loss of all gpus for this batch:  1.9966731071472168
+epoch: 0 step 247 Mean loss of all gpus for this batch:  1.9652986526489258
+epoch: 0 step 248 Mean loss of all gpus for this batch:  1.948104739189148
+epoch: 0 step 249 Mean loss of all gpus for this batch:  1.9651243686676025
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_250_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 1.657955527305603 mins
+Sim 1414: true halos = 140330, inferred halos = 122683
+Number of inferred halos: 122683
+epoch: 0 step 250 Mean loss of all gpus for this batch:  2.0243382453918457
+epoch: 0 step 251 Mean loss of all gpus for this batch:  1.9764909744262695
+epoch: 0 step 252 Mean loss of all gpus for this batch:  2.0293726921081543
+epoch: 0 step 253 Mean loss of all gpus for this batch:  2.0286455154418945
+epoch: 0 step 254 Mean loss of all gpus for this batch:  2.044417381286621
+epoch: 0 step 255 Mean loss of all gpus for this batch:  2.0177547931671143
+epoch: 0 step 256 Mean loss of all gpus for this batch:  2.0194575786590576
+epoch: 0 step 257 Mean loss of all gpus for this batch:  1.9960460662841797
+epoch: 0 step 258 Mean loss of all gpus for this batch:  1.9756412506103516
+epoch: 0 step 259 Mean loss of all gpus for this batch:  2.0231149196624756
+epoch: 0 step 260 Mean loss of all gpus for this batch:  1.9866586923599243
+epoch: 0 step 261 Mean loss of all gpus for this batch:  1.9530162811279297
+epoch: 0 step 262 Mean loss of all gpus for this batch:  1.9859250783920288
+epoch: 0 step 263 Mean loss of all gpus for this batch:  1.9980367422103882
+epoch: 0 step 264 Mean loss of all gpus for this batch:  2.053828239440918
+epoch: 0 step 265 Mean loss of all gpus for this batch:  2.086308479309082
+epoch: 0 step 266 Mean loss of all gpus for this batch:  2.0013930797576904
+epoch: 0 step 267 Mean loss of all gpus for this batch:  1.975144624710083
+epoch: 0 step 268 Mean loss of all gpus for this batch:  1.9972505569458008
+epoch: 0 step 269 Mean loss of all gpus for this batch:  2.02312970161438
+epoch: 0 step 270 Mean loss of all gpus for this batch:  1.9793493747711182
+epoch: 0 step 271 Mean loss of all gpus for this batch:  1.999275803565979
+epoch: 0 step 272 Mean loss of all gpus for this batch:  2.0011208057403564
+epoch: 0 step 273 Mean loss of all gpus for this batch:  2.00730562210083
+epoch: 0 step 274 Mean loss of all gpus for this batch:  2.088625431060791
+epoch: 0 step 275 Mean loss of all gpus for this batch:  2.0004124641418457
+epoch: 0 step 276 Mean loss of all gpus for this batch:  2.009150743484497
+epoch: 0 step 277 Mean loss of all gpus for this batch:  1.9582480192184448
+epoch: 0 step 278 Mean loss of all gpus for this batch:  2.0277810096740723
+epoch: 0 step 279 Mean loss of all gpus for this batch:  2.0814576148986816
+epoch: 0 step 280 Mean loss of all gpus for this batch:  1.9782012701034546
+epoch: 0 step 281 Mean loss of all gpus for this batch:  2.065845012664795
+epoch: 0 step 282 Mean loss of all gpus for this batch:  2.0615792274475098
+epoch: 0 step 283 Mean loss of all gpus for this batch:  2.019752264022827
+epoch: 0 step 284 Mean loss of all gpus for this batch:  2.0271682739257812
+epoch: 0 step 285 Mean loss of all gpus for this batch:  2.007333517074585
+epoch: 0 step 286 Mean loss of all gpus for this batch:  1.8856409788131714
+epoch: 0 step 287 Mean loss of all gpus for this batch:  2.0125553607940674
+epoch: 0 step 288 Mean loss of all gpus for this batch:  1.9642205238342285
+epoch: 0 step 289 Mean loss of all gpus for this batch:  1.9451326131820679
+epoch: 0 step 290 Mean loss of all gpus for this batch:  1.9385892152786255
+epoch: 0 step 291 Mean loss of all gpus for this batch:  1.9853280782699585
+epoch: 0 step 292 Mean loss of all gpus for this batch:  2.0205888748168945
+epoch: 0 step 293 Mean loss of all gpus for this batch:  2.0070741176605225
+epoch: 0 step 294 Mean loss of all gpus for this batch:  2.0369184017181396
+epoch: 0 step 295 Mean loss of all gpus for this batch:  1.9462567567825317
+epoch: 0 step 296 Mean loss of all gpus for this batch:  2.0174827575683594
+epoch: 0 step 297 Mean loss of all gpus for this batch:  1.9719573259353638
+epoch: 0 step 298 Mean loss of all gpus for this batch:  1.9940612316131592
+epoch: 0 step 299 Mean loss of all gpus for this batch:  1.9774545431137085
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_300_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 1.8886500358581544 mins
+Sim 1414: true halos = 140330, inferred halos = 145424
+Number of inferred halos: 145424
+epoch: 0 step 300 Mean loss of all gpus for this batch:  2.0255510807037354
+epoch: 0 step 301 Mean loss of all gpus for this batch:  1.9777157306671143
+epoch: 0 step 302 Mean loss of all gpus for this batch:  1.9896173477172852
+epoch: 0 step 303 Mean loss of all gpus for this batch:  2.0034196376800537
+epoch: 0 step 304 Mean loss of all gpus for this batch:  2.0109598636627197
+epoch: 0 step 305 Mean loss of all gpus for this batch:  1.9578896760940552
+epoch: 0 step 306 Mean loss of all gpus for this batch:  1.8964277505874634
+epoch: 0 step 307 Mean loss of all gpus for this batch:  2.0103015899658203
+epoch: 0 step 308 Mean loss of all gpus for this batch:  2.069876194000244
+epoch: 0 step 309 Mean loss of all gpus for this batch:  2.094919443130493
+epoch: 0 step 310 Mean loss of all gpus for this batch:  1.9934722185134888
+epoch: 0 step 311 Mean loss of all gpus for this batch:  2.000051975250244
+epoch: 0 step 312 Mean loss of all gpus for this batch:  2.010068416595459
+epoch: 0 step 313 Mean loss of all gpus for this batch:  2.055913209915161
+epoch: 0 step 314 Mean loss of all gpus for this batch:  2.0603554248809814
+epoch: 0 step 315 Mean loss of all gpus for this batch:  2.0300796031951904
+epoch: 0 step 316 Mean loss of all gpus for this batch:  2.0021421909332275
+epoch: 0 step 317 Mean loss of all gpus for this batch:  1.983378529548645
+epoch: 0 step 318 Mean loss of all gpus for this batch:  1.976935625076294
+epoch: 0 step 319 Mean loss of all gpus for this batch:  1.9904074668884277
+epoch: 0 step 320 Mean loss of all gpus for this batch:  2.0383691787719727
+epoch: 0 step 321 Mean loss of all gpus for this batch:  2.0010523796081543
+epoch: 0 step 322 Mean loss of all gpus for this batch:  2.012028217315674
+epoch: 0 step 323 Mean loss of all gpus for this batch:  2.075788736343384
+epoch: 0 step 324 Mean loss of all gpus for this batch:  1.9558324813842773
+epoch: 0 step 325 Mean loss of all gpus for this batch:  2.0645623207092285
+epoch: 0 step 326 Mean loss of all gpus for this batch:  2.0469090938568115
+epoch: 0 step 327 Mean loss of all gpus for this batch:  2.0616631507873535
+epoch: 0 step 328 Mean loss of all gpus for this batch:  2.105423927307129
+epoch: 0 step 329 Mean loss of all gpus for this batch:  1.9711002111434937
+epoch: 0 step 330 Mean loss of all gpus for this batch:  1.9949555397033691
+epoch: 0 step 331 Mean loss of all gpus for this batch:  2.075944662094116
+epoch: 0 step 332 Mean loss of all gpus for this batch:  1.9591968059539795
+epoch: 0 step 333 Mean loss of all gpus for this batch:  1.9653549194335938
+epoch: 0 step 334 Mean loss of all gpus for this batch:  2.031728506088257
+epoch: 0 step 335 Mean loss of all gpus for this batch:  1.9577224254608154
+epoch: 0 step 336 Mean loss of all gpus for this batch:  2.0293798446655273
+epoch: 0 step 337 Mean loss of all gpus for this batch:  1.8923033475875854
+epoch: 0 step 338 Mean loss of all gpus for this batch:  1.975786566734314
+epoch: 0 step 339 Mean loss of all gpus for this batch:  2.024956703186035
+epoch: 0 step 340 Mean loss of all gpus for this batch:  2.0271010398864746
+epoch: 0 step 341 Mean loss of all gpus for this batch:  1.917141318321228
+epoch: 0 step 342 Mean loss of all gpus for this batch:  1.9748046398162842
+epoch: 0 step 343 Mean loss of all gpus for this batch:  2.0073463916778564
+epoch: 0 step 344 Mean loss of all gpus for this batch:  1.9594839811325073
+epoch: 0 step 345 Mean loss of all gpus for this batch:  1.9673563241958618
+epoch: 0 step 346 Mean loss of all gpus for this batch:  1.9885141849517822
+epoch: 0 step 347 Mean loss of all gpus for this batch:  2.0368120670318604
+epoch: 0 step 348 Mean loss of all gpus for this batch:  2.065509796142578
+epoch: 0 step 349 Mean loss of all gpus for this batch:  2.0071568489074707
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_350_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 1.7986537098884583 mins
+Sim 1414: true halos = 140330, inferred halos = 139214
+Number of inferred halos: 139214
+epoch: 0 step 350 Mean loss of all gpus for this batch:  2.058168649673462
+epoch: 0 step 351 Mean loss of all gpus for this batch:  2.0161304473876953
+epoch: 0 step 352 Mean loss of all gpus for this batch:  2.056539297103882
+epoch: 0 step 353 Mean loss of all gpus for this batch:  1.9969899654388428
+epoch: 0 step 354 Mean loss of all gpus for this batch:  1.9789187908172607
+epoch: 0 step 355 Mean loss of all gpus for this batch:  2.0623207092285156
+epoch: 0 step 356 Mean loss of all gpus for this batch:  1.9649969339370728
+epoch: 0 step 357 Mean loss of all gpus for this batch:  2.0654845237731934
+epoch: 0 step 358 Mean loss of all gpus for this batch:  1.9813692569732666
+epoch: 0 step 359 Mean loss of all gpus for this batch:  2.0649311542510986
+epoch: 0 step 360 Mean loss of all gpus for this batch:  2.007014274597168
+epoch: 0 step 361 Mean loss of all gpus for this batch:  2.137392520904541
+epoch: 0 step 362 Mean loss of all gpus for this batch:  2.086620569229126
+epoch: 0 step 363 Mean loss of all gpus for this batch:  2.0001981258392334
+epoch: 0 step 364 Mean loss of all gpus for this batch:  2.008000612258911
+epoch: 0 step 365 Mean loss of all gpus for this batch:  1.997420310974121
+epoch: 0 step 366 Mean loss of all gpus for this batch:  1.9587080478668213
+epoch: 0 step 367 Mean loss of all gpus for this batch:  2.1125059127807617
+epoch: 0 step 368 Mean loss of all gpus for this batch:  2.1100497245788574
+epoch: 0 step 369 Mean loss of all gpus for this batch:  1.9627017974853516
+epoch: 0 step 370 Mean loss of all gpus for this batch:  1.92347252368927
+epoch: 0 step 371 Mean loss of all gpus for this batch:  2.0200226306915283
+epoch: 0 step 372 Mean loss of all gpus for this batch:  1.9755951166152954
+epoch: 0 step 373 Mean loss of all gpus for this batch:  1.9918441772460938
+epoch: 0 step 374 Mean loss of all gpus for this batch:  2.0498299598693848
+epoch: 0 step 375 Mean loss of all gpus for this batch:  2.0013811588287354
+epoch: 0 step 376 Mean loss of all gpus for this batch:  2.020172357559204
+epoch: 0 step 377 Mean loss of all gpus for this batch:  2.021097421646118
+epoch: 0 step 378 Mean loss of all gpus for this batch:  2.027472734451294
+epoch: 0 step 379 Mean loss of all gpus for this batch:  2.0314555168151855
+epoch: 0 step 380 Mean loss of all gpus for this batch:  2.050421953201294
+epoch: 0 step 381 Mean loss of all gpus for this batch:  1.97434401512146
+epoch: 0 step 382 Mean loss of all gpus for this batch:  2.0045037269592285
+epoch: 0 step 383 Mean loss of all gpus for this batch:  2.0286312103271484
+epoch: 0 step 384 Mean loss of all gpus for this batch:  2.0380635261535645
+epoch: 0 step 385 Mean loss of all gpus for this batch:  1.8971765041351318
+epoch: 0 step 386 Mean loss of all gpus for this batch:  2.0030295848846436
+epoch: 0 step 387 Mean loss of all gpus for this batch:  2.073030471801758
+epoch: 0 step 388 Mean loss of all gpus for this batch:  1.9072060585021973
+epoch: 0 step 389 Mean loss of all gpus for this batch:  1.9577361345291138
+epoch: 0 step 390 Mean loss of all gpus for this batch:  1.953104019165039
+epoch: 0 step 391 Mean loss of all gpus for this batch:  2.0335357189178467
+epoch: 0 step 392 Mean loss of all gpus for this batch:  2.0239837169647217
+epoch: 0 step 393 Mean loss of all gpus for this batch:  1.985588550567627
+epoch: 0 step 394 Mean loss of all gpus for this batch:  1.9895411729812622
+epoch: 0 step 395 Mean loss of all gpus for this batch:  2.0375349521636963
+epoch: 0 step 396 Mean loss of all gpus for this batch:  2.063697338104248
+epoch: 0 step 397 Mean loss of all gpus for this batch:  2.058051824569702
+epoch: 0 step 398 Mean loss of all gpus for this batch:  2.0309596061706543
+epoch: 0 step 399 Mean loss of all gpus for this batch:  1.896857738494873
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_400_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 1.709009011586507 mins
+Sim 1414: true halos = 140330, inferred halos = 134202
+Number of inferred halos: 134202
+epoch: 0 step 400 Mean loss of all gpus for this batch:  1.931026816368103
+epoch: 0 step 401 Mean loss of all gpus for this batch:  1.9863908290863037
+epoch: 0 step 402 Mean loss of all gpus for this batch:  1.9610263109207153
+epoch: 0 step 403 Mean loss of all gpus for this batch:  2.0077285766601562
+epoch: 0 step 404 Mean loss of all gpus for this batch:  1.9562128782272339
+epoch: 0 step 405 Mean loss of all gpus for this batch:  2.0011825561523438
+epoch: 0 step 406 Mean loss of all gpus for this batch:  1.9746294021606445
+epoch: 0 step 407 Mean loss of all gpus for this batch:  1.9783415794372559
+epoch: 0 step 408 Mean loss of all gpus for this batch:  1.9803228378295898
+epoch: 0 step 409 Mean loss of all gpus for this batch:  2.022294282913208
+epoch: 0 step 410 Mean loss of all gpus for this batch:  2.023881673812866
+epoch: 0 step 411 Mean loss of all gpus for this batch:  1.9451051950454712
+epoch: 0 step 412 Mean loss of all gpus for this batch:  1.9957512617111206
+epoch: 0 step 413 Mean loss of all gpus for this batch:  1.9587206840515137
+epoch: 0 step 414 Mean loss of all gpus for this batch:  1.9639465808868408
+epoch: 0 step 415 Mean loss of all gpus for this batch:  1.9718784093856812
+epoch: 0 step 416 Mean loss of all gpus for this batch:  1.910699725151062
+epoch: 0 step 417 Mean loss of all gpus for this batch:  2.0209288597106934
+epoch: 0 step 418 Mean loss of all gpus for this batch:  2.0067338943481445
+epoch: 0 step 419 Mean loss of all gpus for this batch:  1.9823054075241089
+epoch: 0 step 420 Mean loss of all gpus for this batch:  1.9177199602127075
+epoch: 0 step 421 Mean loss of all gpus for this batch:  2.028083324432373
+epoch: 0 step 422 Mean loss of all gpus for this batch:  1.9205876588821411
+epoch: 0 step 423 Mean loss of all gpus for this batch:  1.9875231981277466
+epoch: 0 step 424 Mean loss of all gpus for this batch:  2.0405502319335938
+epoch: 0 step 425 Mean loss of all gpus for this batch:  2.005981922149658
+epoch: 0 step 426 Mean loss of all gpus for this batch:  1.9951285123825073
+epoch: 0 step 427 Mean loss of all gpus for this batch:  1.9961696863174438
+epoch: 0 step 428 Mean loss of all gpus for this batch:  1.9909294843673706
+epoch: 0 step 429 Mean loss of all gpus for this batch:  2.0190796852111816
+epoch: 0 step 430 Mean loss of all gpus for this batch:  2.01640248298645
+epoch: 0 step 431 Mean loss of all gpus for this batch:  2.0106494426727295
+epoch: 0 step 432 Mean loss of all gpus for this batch:  2.0665581226348877
+epoch: 0 step 433 Mean loss of all gpus for this batch:  2.0477442741394043
+epoch: 0 step 434 Mean loss of all gpus for this batch:  1.9950509071350098
+epoch: 0 step 435 Mean loss of all gpus for this batch:  1.9954357147216797
+epoch: 0 step 436 Mean loss of all gpus for this batch:  1.9267386198043823
+epoch: 0 step 437 Mean loss of all gpus for this batch:  1.9525679349899292
+epoch: 0 step 438 Mean loss of all gpus for this batch:  2.063598394393921
+epoch: 0 step 439 Mean loss of all gpus for this batch:  2.0020101070404053
+epoch: 0 step 440 Mean loss of all gpus for this batch:  2.0240015983581543
+epoch: 0 step 441 Mean loss of all gpus for this batch:  2.1201493740081787
+epoch: 0 step 442 Mean loss of all gpus for this batch:  2.054873466491699
+epoch: 0 step 443 Mean loss of all gpus for this batch:  2.109299421310425
+epoch: 0 step 444 Mean loss of all gpus for this batch:  1.9513788223266602
+epoch: 0 step 445 Mean loss of all gpus for this batch:  1.9324734210968018
+epoch: 0 step 446 Mean loss of all gpus for this batch:  1.9517667293548584
+epoch: 0 step 447 Mean loss of all gpus for this batch:  1.9852402210235596
+epoch: 0 step 448 Mean loss of all gpus for this batch:  1.900885820388794
+epoch: 0 step 449 Mean loss of all gpus for this batch:  1.9741290807724
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_450_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 1.7287312746047974 mins
+Sim 1414: true halos = 140330, inferred halos = 131896
+Number of inferred halos: 131896
+epoch: 0 step 450 Mean loss of all gpus for this batch:  1.9220925569534302
+epoch: 0 step 451 Mean loss of all gpus for this batch:  2.0779407024383545
+epoch: 0 step 452 Mean loss of all gpus for this batch:  1.9883315563201904
+epoch: 0 step 453 Mean loss of all gpus for this batch:  2.0177292823791504
+epoch: 0 step 454 Mean loss of all gpus for this batch:  1.9844926595687866
+epoch: 0 step 455 Mean loss of all gpus for this batch:  2.078981399536133
+epoch: 0 step 456 Mean loss of all gpus for this batch:  2.0101447105407715
+epoch: 0 step 457 Mean loss of all gpus for this batch:  1.9588414430618286
+epoch: 0 step 458 Mean loss of all gpus for this batch:  2.0354926586151123
+epoch: 0 step 459 Mean loss of all gpus for this batch:  2.0054473876953125
+epoch: 0 step 460 Mean loss of all gpus for this batch:  2.0205771923065186
+epoch: 0 step 461 Mean loss of all gpus for this batch:  2.0159525871276855
+epoch: 0 step 462 Mean loss of all gpus for this batch:  2.0410351753234863
+epoch: 0 step 463 Mean loss of all gpus for this batch:  2.002969264984131
+epoch: 0 step 464 Mean loss of all gpus for this batch:  2.0933916568756104
+epoch: 0 step 465 Mean loss of all gpus for this batch:  1.9926844835281372
+epoch: 0 step 466 Mean loss of all gpus for this batch:  2.0207831859588623
+epoch: 0 step 467 Mean loss of all gpus for this batch:  2.0113885402679443
+epoch: 0 step 468 Mean loss of all gpus for this batch:  1.9388865232467651
+epoch: 0 step 469 Mean loss of all gpus for this batch:  1.9579730033874512
+epoch: 0 step 470 Mean loss of all gpus for this batch:  2.040867805480957
+epoch: 0 step 471 Mean loss of all gpus for this batch:  1.897449254989624
+epoch: 0 step 472 Mean loss of all gpus for this batch:  2.010704517364502
+epoch: 0 step 473 Mean loss of all gpus for this batch:  1.988218903541565
+epoch: 0 step 474 Mean loss of all gpus for this batch:  2.043219804763794
+epoch: 0 step 475 Mean loss of all gpus for this batch:  2.0557594299316406
+epoch: 0 step 476 Mean loss of all gpus for this batch:  1.9932100772857666
+epoch: 0 step 477 Mean loss of all gpus for this batch:  2.022272825241089
+epoch: 0 step 478 Mean loss of all gpus for this batch:  2.020796298980713
+epoch: 0 step 479 Mean loss of all gpus for this batch:  2.0231406688690186
+epoch: 0 step 480 Mean loss of all gpus for this batch:  1.985749363899231
+epoch: 0 step 481 Mean loss of all gpus for this batch:  2.02730393409729
+epoch: 0 step 482 Mean loss of all gpus for this batch:  2.0097761154174805
+epoch: 0 step 483 Mean loss of all gpus for this batch:  2.0813000202178955
+epoch: 0 step 484 Mean loss of all gpus for this batch:  1.9595857858657837
+epoch: 0 step 485 Mean loss of all gpus for this batch:  1.9376944303512573
+epoch: 0 step 486 Mean loss of all gpus for this batch:  1.9871406555175781
+epoch: 0 step 487 Mean loss of all gpus for this batch:  2.0618979930877686
+epoch: 0 step 488 Mean loss of all gpus for this batch:  2.0400705337524414
+epoch: 0 step 489 Mean loss of all gpus for this batch:  1.9965319633483887
+epoch: 0 step 490 Mean loss of all gpus for this batch:  1.9752200841903687
+epoch: 0 step 491 Mean loss of all gpus for this batch:  1.94185471534729
+epoch: 0 step 492 Mean loss of all gpus for this batch:  1.9954242706298828
+epoch: 0 step 493 Mean loss of all gpus for this batch:  1.9814999103546143
+epoch: 0 step 494 Mean loss of all gpus for this batch:  2.0269503593444824
+epoch: 0 step 495 Mean loss of all gpus for this batch:  2.049421787261963
+epoch: 0 step 496 Mean loss of all gpus for this batch:  1.9504659175872803
+epoch: 0 step 497 Mean loss of all gpus for this batch:  1.959341287612915
+epoch: 0 step 498 Mean loss of all gpus for this batch:  1.936689853668213
+epoch: 0 step 499 Mean loss of all gpus for this batch:  2.0158658027648926
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_500_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 1.579120639959971 mins
+Sim 1414: true halos = 140330, inferred halos = 136327
+Number of inferred halos: 136327
+epoch: 0 step 500 Mean loss of all gpus for this batch:  2.1042048931121826
+epoch: 0 step 501 Mean loss of all gpus for this batch:  2.070939064025879
+epoch: 0 step 502 Mean loss of all gpus for this batch:  1.9904732704162598
+epoch: 0 step 503 Mean loss of all gpus for this batch:  1.9704563617706299
+epoch: 0 step 504 Mean loss of all gpus for this batch:  2.075772762298584
+epoch: 0 step 505 Mean loss of all gpus for this batch:  2.0070292949676514
+epoch: 0 step 506 Mean loss of all gpus for this batch:  1.9925086498260498
+epoch: 0 step 507 Mean loss of all gpus for this batch:  1.9969747066497803
+epoch: 0 step 508 Mean loss of all gpus for this batch:  1.9633177518844604
+epoch: 0 step 509 Mean loss of all gpus for this batch:  1.925872564315796
+epoch: 0 step 510 Mean loss of all gpus for this batch:  2.015756368637085
+epoch: 0 step 511 Mean loss of all gpus for this batch:  1.9882748126983643
+epoch: 0 step 512 Mean loss of all gpus for this batch:  2.0890257358551025
+epoch: 0 step 513 Mean loss of all gpus for this batch:  1.9927793741226196
+epoch: 0 step 514 Mean loss of all gpus for this batch:  1.9237180948257446
+epoch: 0 step 515 Mean loss of all gpus for this batch:  1.9437460899353027
+epoch: 0 step 516 Mean loss of all gpus for this batch:  1.9248692989349365
+epoch: 0 step 517 Mean loss of all gpus for this batch:  2.030287265777588
+epoch: 0 step 518 Mean loss of all gpus for this batch:  1.9903873205184937
+epoch: 0 step 519 Mean loss of all gpus for this batch:  2.0134379863739014
+epoch: 0 step 520 Mean loss of all gpus for this batch:  2.000581741333008
+epoch: 0 step 521 Mean loss of all gpus for this batch:  2.040555953979492
+epoch: 0 step 522 Mean loss of all gpus for this batch:  1.974440336227417
+epoch: 0 step 523 Mean loss of all gpus for this batch:  1.9173393249511719
+epoch: 0 step 524 Mean loss of all gpus for this batch:  1.9853503704071045
+epoch: 0 step 525 Mean loss of all gpus for this batch:  1.930238962173462
+epoch: 0 step 526 Mean loss of all gpus for this batch:  1.98994779586792
+epoch: 0 step 527 Mean loss of all gpus for this batch:  1.9724597930908203
+epoch: 0 step 528 Mean loss of all gpus for this batch:  2.0219855308532715
+epoch: 0 step 529 Mean loss of all gpus for this batch:  2.046111822128296
+epoch: 0 step 530 Mean loss of all gpus for this batch:  1.995086431503296
+epoch: 0 step 531 Mean loss of all gpus for this batch:  1.9666786193847656
+epoch: 0 step 532 Mean loss of all gpus for this batch:  2.043163537979126
+epoch: 0 step 533 Mean loss of all gpus for this batch:  1.9898161888122559
+epoch: 0 step 534 Mean loss of all gpus for this batch:  2.0385661125183105
+epoch: 0 step 535 Mean loss of all gpus for this batch:  1.9682573080062866
+epoch: 0 step 536 Mean loss of all gpus for this batch:  2.0386767387390137
+epoch: 0 step 537 Mean loss of all gpus for this batch:  1.9836723804473877
+epoch: 0 step 538 Mean loss of all gpus for this batch:  1.8996412754058838
+epoch: 0 step 539 Mean loss of all gpus for this batch:  1.9691498279571533
+epoch: 0 step 540 Mean loss of all gpus for this batch:  2.0138356685638428
+epoch: 0 step 541 Mean loss of all gpus for this batch:  1.9747180938720703
+epoch: 0 step 542 Mean loss of all gpus for this batch:  1.9519188404083252
+epoch: 0 step 543 Mean loss of all gpus for this batch:  2.072154998779297
+epoch: 0 step 544 Mean loss of all gpus for this batch:  1.9675239324569702
+epoch: 0 step 545 Mean loss of all gpus for this batch:  1.9387096166610718
+epoch: 0 step 546 Mean loss of all gpus for this batch:  2.0895745754241943
+epoch: 0 step 547 Mean loss of all gpus for this batch:  1.9418106079101562
+epoch: 0 step 548 Mean loss of all gpus for this batch:  2.008500337600708
+epoch: 0 step 549 Mean loss of all gpus for this batch:  2.0468361377716064
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_550_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 1.8273692687352499 mins
+Sim 1414: true halos = 140330, inferred halos = 138577
+Number of inferred halos: 138577
+epoch: 0 step 550 Mean loss of all gpus for this batch:  2.0266168117523193
+epoch: 0 step 551 Mean loss of all gpus for this batch:  2.03814435005188
+epoch: 0 step 552 Mean loss of all gpus for this batch:  1.9881980419158936
+epoch: 0 step 553 Mean loss of all gpus for this batch:  1.9519309997558594
+epoch: 0 step 554 Mean loss of all gpus for this batch:  2.0131261348724365
+epoch: 0 step 555 Mean loss of all gpus for this batch:  1.9529386758804321
+epoch: 0 step 556 Mean loss of all gpus for this batch:  2.0138237476348877
+epoch: 0 step 557 Mean loss of all gpus for this batch:  1.9392971992492676
+epoch: 0 step 558 Mean loss of all gpus for this batch:  1.9705809354782104
+epoch: 0 step 559 Mean loss of all gpus for this batch:  2.0325143337249756
+epoch: 0 step 560 Mean loss of all gpus for this batch:  1.906480312347412
+epoch: 0 step 561 Mean loss of all gpus for this batch:  2.015892505645752
+epoch: 0 step 562 Mean loss of all gpus for this batch:  1.954974889755249
+epoch: 0 step 563 Mean loss of all gpus for this batch:  2.021869421005249
+epoch: 0 step 564 Mean loss of all gpus for this batch:  1.9566537141799927
+epoch: 0 step 565 Mean loss of all gpus for this batch:  2.038275957107544
+epoch: 0 step 566 Mean loss of all gpus for this batch:  1.9645681381225586
+epoch: 0 step 567 Mean loss of all gpus for this batch:  2.0405662059783936
+epoch: 0 step 568 Mean loss of all gpus for this batch:  1.924317717552185
+epoch: 0 step 569 Mean loss of all gpus for this batch:  2.032749652862549
+epoch: 0 step 570 Mean loss of all gpus for this batch:  1.9360510110855103
+epoch: 0 step 571 Mean loss of all gpus for this batch:  1.9938440322875977
+epoch: 0 step 572 Mean loss of all gpus for this batch:  1.9524797201156616
+epoch: 0 step 573 Mean loss of all gpus for this batch:  1.9722461700439453
+epoch: 0 step 574 Mean loss of all gpus for this batch:  1.9961658716201782
+epoch: 0 step 575 Mean loss of all gpus for this batch:  2.0199875831604004
+epoch: 0 step 576 Mean loss of all gpus for this batch:  1.971697211265564
+epoch: 0 step 577 Mean loss of all gpus for this batch:  2.056079387664795
+epoch: 0 step 578 Mean loss of all gpus for this batch:  1.9186373949050903
+epoch: 0 step 579 Mean loss of all gpus for this batch:  2.0678279399871826
+epoch: 0 step 580 Mean loss of all gpus for this batch:  2.0720508098602295
+epoch: 0 step 581 Mean loss of all gpus for this batch:  1.9381053447723389
+epoch: 0 step 582 Mean loss of all gpus for this batch:  2.0138068199157715
+epoch: 0 step 583 Mean loss of all gpus for this batch:  1.9083495140075684
+epoch: 0 step 584 Mean loss of all gpus for this batch:  1.909392237663269
+epoch: 0 step 585 Mean loss of all gpus for this batch:  2.0861740112304688
+epoch: 0 step 586 Mean loss of all gpus for this batch:  2.1021177768707275
+epoch: 0 step 587 Mean loss of all gpus for this batch:  1.9826287031173706
+epoch: 0 step 588 Mean loss of all gpus for this batch:  1.9849790334701538
+epoch: 0 step 589 Mean loss of all gpus for this batch:  1.9563080072402954
+epoch: 0 step 590 Mean loss of all gpus for this batch:  2.0220139026641846
+epoch: 0 step 591 Mean loss of all gpus for this batch:  1.990858793258667
+epoch: 0 step 592 Mean loss of all gpus for this batch:  1.9958856105804443
+epoch: 0 step 593 Mean loss of all gpus for this batch:  1.9461054801940918
+epoch: 0 step 594 Mean loss of all gpus for this batch:  2.059206247329712
+epoch: 0 step 595 Mean loss of all gpus for this batch:  1.9666355848312378
+epoch: 0 step 596 Mean loss of all gpus for this batch:  1.9856531620025635
+epoch: 0 step 597 Mean loss of all gpus for this batch:  1.981201171875
+epoch: 0 step 598 Mean loss of all gpus for this batch:  2.008220911026001
+epoch: 0 step 599 Mean loss of all gpus for this batch:  1.9705673456192017
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2146354/checkpoint_cos_cross_entropy_epoch_0_step_600_embed_384_batch_200_lrmax_1e-05_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24

@@ -1,0 +1,77 @@
+Reordered gal_tokens to property-grouped layout
+epoch: 0 step 0 Mean loss of all gpus for this batch:  4.993112087249756
+epoch: 0 step 1 Mean loss of all gpus for this batch:  5.0034918785095215
+epoch: 0 step 2 Mean loss of all gpus for this batch:  4.9907660484313965
+epoch: 0 step 3 Mean loss of all gpus for this batch:  4.984367370605469
+epoch: 0 step 4 Mean loss of all gpus for this batch:  4.985886096954346
+epoch: 0 step 5 Mean loss of all gpus for this batch:  4.996181488037109
+epoch: 0 step 6 Mean loss of all gpus for this batch:  4.976328372955322
+epoch: 0 step 7 Mean loss of all gpus for this batch:  4.98275089263916
+epoch: 0 step 8 Mean loss of all gpus for this batch:  4.9713335037231445
+epoch: 0 step 9 Mean loss of all gpus for this batch:  4.963760852813721
+epoch: 0 step 10 Mean loss of all gpus for this batch:  4.9557294845581055
+epoch: 0 step 11 Mean loss of all gpus for this batch:  4.969564914703369
+epoch: 0 step 12 Mean loss of all gpus for this batch:  4.959596633911133
+epoch: 0 step 13 Mean loss of all gpus for this batch:  4.942179203033447
+epoch: 0 step 14 Mean loss of all gpus for this batch:  4.928598880767822
+epoch: 0 step 15 Mean loss of all gpus for this batch:  4.914844512939453
+epoch: 0 step 16 Mean loss of all gpus for this batch:  4.905410289764404
+epoch: 0 step 17 Mean loss of all gpus for this batch:  4.896722316741943
+epoch: 0 step 18 Mean loss of all gpus for this batch:  4.888698577880859
+epoch: 0 step 19 Mean loss of all gpus for this batch:  4.8650736808776855
+epoch: 0 step 20 Mean loss of all gpus for this batch:  4.845454216003418
+epoch: 0 step 21 Mean loss of all gpus for this batch:  4.839748382568359
+epoch: 0 step 22 Mean loss of all gpus for this batch:  4.835623264312744
+epoch: 0 step 23 Mean loss of all gpus for this batch:  4.819840908050537
+epoch: 0 step 24 Mean loss of all gpus for this batch:  4.799715518951416
+epoch: 0 step 25 Mean loss of all gpus for this batch:  4.783782482147217
+epoch: 0 step 26 Mean loss of all gpus for this batch:  4.791233062744141
+epoch: 0 step 27 Mean loss of all gpus for this batch:  4.760286808013916
+epoch: 0 step 28 Mean loss of all gpus for this batch:  4.759929180145264
+epoch: 0 step 29 Mean loss of all gpus for this batch:  4.740820407867432
+epoch: 0 step 30 Mean loss of all gpus for this batch:  4.753543853759766
+epoch: 0 step 31 Mean loss of all gpus for this batch:  4.7281694412231445
+epoch: 0 step 32 Mean loss of all gpus for this batch:  4.704930782318115
+epoch: 0 step 33 Mean loss of all gpus for this batch:  4.701724052429199
+epoch: 0 step 34 Mean loss of all gpus for this batch:  4.679262638092041
+epoch: 0 step 35 Mean loss of all gpus for this batch:  4.681478023529053
+epoch: 0 step 36 Mean loss of all gpus for this batch:  4.650836944580078
+epoch: 0 step 37 Mean loss of all gpus for this batch:  4.65254020690918
+epoch: 0 step 38 Mean loss of all gpus for this batch:  4.645244121551514
+epoch: 0 step 39 Mean loss of all gpus for this batch:  4.660082817077637
+epoch: 0 step 40 Mean loss of all gpus for this batch:  4.615745544433594
+epoch: 0 step 41 Mean loss of all gpus for this batch:  4.579755783081055
+epoch: 0 step 42 Mean loss of all gpus for this batch:  4.552907466888428
+epoch: 0 step 43 Mean loss of all gpus for this batch:  4.564827919006348
+epoch: 0 step 44 Mean loss of all gpus for this batch:  4.573992729187012
+epoch: 0 step 45 Mean loss of all gpus for this batch:  4.570108413696289
+epoch: 0 step 46 Mean loss of all gpus for this batch:  4.582040309906006
+epoch: 0 step 47 Mean loss of all gpus for this batch:  4.566818714141846
+epoch: 0 step 48 Mean loss of all gpus for this batch:  4.546229362487793
+epoch: 0 step 49 Mean loss of all gpus for this batch:  4.509055137634277
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2165276/checkpoint_cos_cross_entropy_epoch_0_step_50_embed_384_batch_200_lrmax_0.0001_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py:560: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  torch.tensor(halo_id, dtype=torch.long, device=device))  # (b, 1, n_embd)
+/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py:562: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  torch.tensor(prop_id, dtype=torch.long, device=device))  # (b, 1, n_embd)
+Traceback (most recent call last):
+  File "/u/yzhang116/NN/quijote/train_xfirst.py", line 438, in <module>
+    train()
+  File "/u/yzhang116/NN/quijote/train_xfirst.py", line 395, in train
+    gen_data = gen(simid, model)
+  File "/u/yzhang116/NN/quijote/gen_func_xfirst.py", line 42, in gen
+    out_chunk = model.module.generate(
+  File "/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py", line 563, in generate
+    tok_emb += haloid_emb + propid_emb
+RuntimeError: output with shape [10923, 1, 384] doesn't match the broadcast shape [10923, 10923, 1, 384]
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/u/yzhang116/NN/quijote/train_xfirst.py", line 438, in <module>
+[rank0]:     train()
+[rank0]:   File "/u/yzhang116/NN/quijote/train_xfirst.py", line 395, in train
+[rank0]:     gen_data = gen(simid, model)
+[rank0]:   File "/u/yzhang116/NN/quijote/gen_func_xfirst.py", line 42, in gen
+[rank0]:     out_chunk = model.module.generate(
+[rank0]:   File "/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py", line 563, in generate
+[rank0]:     tok_emb += haloid_emb + propid_emb
+[rank0]: RuntimeError: output with shape [10923, 1, 384] doesn't match the broadcast shape [10923, 10923, 1, 384]

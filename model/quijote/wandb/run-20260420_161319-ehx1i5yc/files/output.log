@@ -1,0 +1,93 @@
+Reordered gal_tokens to property-grouped layout
+epoch: 0 step 0 Mean loss of all gpus for this batch:  4.945191383361816
+epoch: 0 step 1 Mean loss of all gpus for this batch:  4.949961185455322
+epoch: 0 step 2 Mean loss of all gpus for this batch:  4.95352840423584
+epoch: 0 step 3 Mean loss of all gpus for this batch:  4.963979721069336
+epoch: 0 step 4 Mean loss of all gpus for this batch:  4.951015949249268
+epoch: 0 step 5 Mean loss of all gpus for this batch:  4.93654727935791
+epoch: 0 step 6 Mean loss of all gpus for this batch:  4.940847396850586
+epoch: 0 step 7 Mean loss of all gpus for this batch:  4.927408218383789
+epoch: 0 step 8 Mean loss of all gpus for this batch:  4.923757553100586
+epoch: 0 step 9 Mean loss of all gpus for this batch:  4.928291320800781
+epoch: 0 step 10 Mean loss of all gpus for this batch:  4.906975269317627
+epoch: 0 step 11 Mean loss of all gpus for this batch:  4.907219409942627
+epoch: 0 step 12 Mean loss of all gpus for this batch:  4.890829563140869
+epoch: 0 step 13 Mean loss of all gpus for this batch:  4.9157843589782715
+epoch: 0 step 14 Mean loss of all gpus for this batch:  4.885953903198242
+epoch: 0 step 15 Mean loss of all gpus for this batch:  4.8819098472595215
+epoch: 0 step 16 Mean loss of all gpus for this batch:  4.87096643447876
+epoch: 0 step 17 Mean loss of all gpus for this batch:  4.862703800201416
+epoch: 0 step 18 Mean loss of all gpus for this batch:  4.8677473068237305
+epoch: 0 step 19 Mean loss of all gpus for this batch:  4.853967189788818
+epoch: 0 step 20 Mean loss of all gpus for this batch:  4.831341743469238
+epoch: 0 step 21 Mean loss of all gpus for this batch:  4.8059163093566895
+epoch: 0 step 22 Mean loss of all gpus for this batch:  4.7967987060546875
+epoch: 0 step 23 Mean loss of all gpus for this batch:  4.814326763153076
+epoch: 0 step 24 Mean loss of all gpus for this batch:  4.805606842041016
+epoch: 0 step 25 Mean loss of all gpus for this batch:  4.788485527038574
+epoch: 0 step 26 Mean loss of all gpus for this batch:  4.768394470214844
+epoch: 0 step 27 Mean loss of all gpus for this batch:  4.741332530975342
+epoch: 0 step 28 Mean loss of all gpus for this batch:  4.759597301483154
+epoch: 0 step 29 Mean loss of all gpus for this batch:  4.7276763916015625
+epoch: 0 step 30 Mean loss of all gpus for this batch:  4.695825099945068
+epoch: 0 step 31 Mean loss of all gpus for this batch:  4.714745998382568
+epoch: 0 step 32 Mean loss of all gpus for this batch:  4.691760540008545
+epoch: 0 step 33 Mean loss of all gpus for this batch:  4.710019588470459
+epoch: 0 step 34 Mean loss of all gpus for this batch:  4.662187099456787
+epoch: 0 step 35 Mean loss of all gpus for this batch:  4.613250255584717
+epoch: 0 step 36 Mean loss of all gpus for this batch:  4.665135383605957
+epoch: 0 step 37 Mean loss of all gpus for this batch:  4.64677095413208
+epoch: 0 step 38 Mean loss of all gpus for this batch:  4.642103672027588
+epoch: 0 step 39 Mean loss of all gpus for this batch:  4.591470241546631
+epoch: 0 step 40 Mean loss of all gpus for this batch:  4.5641279220581055
+epoch: 0 step 41 Mean loss of all gpus for this batch:  4.626888751983643
+epoch: 0 step 42 Mean loss of all gpus for this batch:  4.582658290863037
+epoch: 0 step 43 Mean loss of all gpus for this batch:  4.581353664398193
+epoch: 0 step 44 Mean loss of all gpus for this batch:  4.547672748565674
+epoch: 0 step 45 Mean loss of all gpus for this batch:  4.56425666809082
+epoch: 0 step 46 Mean loss of all gpus for this batch:  4.596363067626953
+epoch: 0 step 47 Mean loss of all gpus for this batch:  4.568435192108154
+epoch: 0 step 48 Mean loss of all gpus for this batch:  4.5903730392456055
+epoch: 0 step 49 Mean loss of all gpus for this batch:  4.551974773406982
+Checkpoint saved at epoch 0 with loss 100000000000000000000.0000: /work/hdd/bdne/yzhang116/checkpoints_quijote/2165276/checkpoint_cos_cross_entropy_epoch_0_step_50_embed_384_batch_200_lrmax_0.0001_lrmin_1e-05_layer_8_head_12_layervit_4_headvit_8_patch_4_dropout_0.0.pt
+Generating sim 1414, chunk 1/24
+/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py:560: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  torch.tensor(halo_id, dtype=torch.long, device=device))  # (b, 1, n_embd)
+/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py:562: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  torch.tensor(prop_id, dtype=torch.long, device=device))  # (b, 1, n_embd)
+Generating sim 1414, chunk 2/24
+Generating sim 1414, chunk 3/24
+Generating sim 1414, chunk 4/24
+Generating sim 1414, chunk 5/24
+Generating sim 1414, chunk 6/24
+Generating sim 1414, chunk 7/24
+Generating sim 1414, chunk 8/24
+Generating sim 1414, chunk 9/24
+Generating sim 1414, chunk 10/24
+Generating sim 1414, chunk 11/24
+Generating sim 1414, chunk 12/24
+Generating sim 1414, chunk 13/24
+Generating sim 1414, chunk 14/24
+Generating sim 1414, chunk 15/24
+Generating sim 1414, chunk 16/24
+Generating sim 1414, chunk 17/24
+Generating sim 1414, chunk 18/24
+Generating sim 1414, chunk 19/24
+Generating sim 1414, chunk 20/24
+Generating sim 1414, chunk 21/24
+Generating sim 1414, chunk 22/24
+Generating sim 1414, chunk 23/24
+Generating sim 1414, chunk 24/24
+Generation time for simid 1414 on rank 0: 5.227667224407196 mins
+Traceback (most recent call last):
+  File "/u/yzhang116/NN/quijote/train_xfirst.py", line 438, in <module>
+    train()
+  File "/u/yzhang116/NN/quijote/train_xfirst.py", line 399, in train
+    hmf, ps, num_infer = get_ratios_xfirst(simid, gen_data)
+NameError: name 'get_ratios_xfirst' is not defined
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/u/yzhang116/NN/quijote/train_xfirst.py", line 438, in <module>
+[rank0]:     train()
+[rank0]:   File "/u/yzhang116/NN/quijote/train_xfirst.py", line 399, in train
+[rank0]:     hmf, ps, num_infer = get_ratios_xfirst(simid, gen_data)
+[rank0]: NameError: name 'get_ratios_xfirst' is not defined. Did you mean: 'get_prop_pos_xfirst'?

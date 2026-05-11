@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/u/yzhang116/NN/quijote/train_xfirst.py", line 439, in <module>
+    train()
+  File "/u/yzhang116/NN/quijote/train_xfirst.py", line 323, in train
+    gal_tokens = reorder_halo_tokens(
+TypeError: reorder_halo_tokens() got multiple values for argument 'nprops'
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/u/yzhang116/NN/quijote/train_xfirst.py", line 439, in <module>
+[rank0]:     train()
+[rank0]:   File "/u/yzhang116/NN/quijote/train_xfirst.py", line 323, in train
+[rank0]:     gal_tokens = reorder_halo_tokens(
+[rank0]: TypeError: reorder_halo_tokens() got multiple values for argument 'nprops'

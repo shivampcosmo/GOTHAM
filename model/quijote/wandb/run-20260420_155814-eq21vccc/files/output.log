@@ -1,0 +1,79 @@
+Traceback (most recent call last):
+  File "/u/yzhang116/NN/quijote/train_xfirst.py", line 437, in <module>
+    train()
+  File "/u/yzhang116/NN/quijote/train_xfirst.py", line 343, in train
+    loss = model(X[ind_js], DM[ind_js],
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1844, in _call_impl
+    return inner()
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in inner
+    result = forward_call(*args, **kwargs)
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/parallel/distributed.py", line 1643, in forward
+    else self._run_ddp_forward(*inputs, **kwargs)
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/parallel/distributed.py", line 1459, in _run_ddp_forward
+    return self.module(*inputs, **kwargs)  # type: ignore[index]
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+  File "/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py", line 416, in forward
+    x = block(x, xe=xe, maskd=maskd)
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py", line 243, in forward
+    x = x + self.selfattn(self.ln_1(x), xe=None, maskd=maskd, maske=None)
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py", line 183, in forward
+    return x / rms * self.weight
+RuntimeError: CUDA error: device-side assert triggered
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/u/yzhang116/NN/quijote/train_xfirst.py", line 437, in <module>
+[rank0]:     train()
+[rank0]:   File "/u/yzhang116/NN/quijote/train_xfirst.py", line 343, in train
+[rank0]:     loss = model(X[ind_js], DM[ind_js],
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1844, in _call_impl
+[rank0]:     return inner()
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in inner
+[rank0]:     result = forward_call(*args, **kwargs)
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/parallel/distributed.py", line 1643, in forward
+[rank0]:     else self._run_ddp_forward(*inputs, **kwargs)
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/parallel/distributed.py", line 1459, in _run_ddp_forward
+[rank0]:     return self.module(*inputs, **kwargs)  # type: ignore[index]
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+[rank0]:     return func(*args, **kwargs)
+[rank0]:   File "/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py", line 416, in forward
+[rank0]:     x = block(x, xe=xe, maskd=maskd)
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py", line 243, in forward
+[rank0]:     x = x + self.selfattn(self.ln_1(x), xe=None, maskd=maskd, maske=None)
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:   File "/u/yzhang116/.conda/envs/nn/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/u/yzhang116/NN/quijote/model_enc_dec_cos_fast_xfirst.py", line 183, in forward
+[rank0]:     return x / rms * self.weight
+[rank0]: RuntimeError: CUDA error: device-side assert triggered
+[rank0]: CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+[rank0]: For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+[rank0]: Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
